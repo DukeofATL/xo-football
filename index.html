@@ -118,7 +118,7 @@ nav.tabs button.on{opacity:1;color:var(--nav-hi,#fff);box-shadow:inset 0 3px 0 v
 .loop path{fill:none;stroke:var(--emph);stroke-width:2.6;stroke-linecap:round;vector-effect:non-scaling-stroke;stroke-dasharray:1;stroke-dashoffset:1;animation:draw .75s ease-out forwards}
 @keyframes draw{to{stroke-dashoffset:0}}
 @media (prefers-reduced-motion: reduce){.loop path{animation:none;stroke-dashoffset:0}}
-.circled{position:relative;display:inline-block;padding:8px 18px}
+.circled{position:relative;display:inline-block;padding:12px 26px}
 .cap.alert b:first-child{color:var(--emph)}
 .side-lab{display:flex;justify-content:space-between;align-items:baseline;margin:10px 0 6px;font-size:14px;font-weight:700;color:var(--muted)}
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -166,6 +166,9 @@ nav.tabs button.on{opacity:1;color:var(--nav-hi,#fff);box-shadow:inset 0 3px 0 v
 .st.lost,.st.off{background:color-mix(in srgb,var(--bad) 16%,transparent);color:var(--bad)}
 .st.close{background:color-mix(in srgb,var(--warn) 18%,transparent);color:var(--warn)}
 .st.nodata{background:var(--surf2);color:var(--muted)}
+.st.even{background:color-mix(in srgb,var(--warn) 16%,transparent);color:var(--warn)}
+.kcard.even{border-left-color:var(--warn)}
+.pc .st.even{background:rgba(255,201,74,.18);color:#FFC94A}
 .kr{display:grid;grid-template-columns:1fr auto;gap:2px 10px;padding:8px 0;border-bottom:1px solid var(--line)}
 .kr:last-child{border-bottom:0}
 .kr .v{font-size:13px;color:var(--muted);grid-column:1/2}
@@ -777,13 +780,13 @@ const paceT = (c,t) => (c.phase==="final" || (c.phase==="live" && G().q>=3)) ? t
 const KEYS = [
   { id:"to", short:"Turnovers", std:true, title:()=>"Win the turnover battle",
     ev:(c)=>{ const u=bv(c.box,"us","to"), o=bv(c.box,"opp","to"); if(u==null||o==null) return null;
-      return {gap:Math.abs(u-o), pass:u<o, close:u===o, text:`Turnovers: ${usA()} ${u}, ${oppA()} ${o}`}; } },
+      return {gap:Math.abs(u-o), pass:u<o, close:u===o, even:u===o, text:`Turnovers: ${usA()} ${u}, ${oppA()} ${o}`}; } },
   { id:"protect", short:"Ball security", std:true, d:0, step:1, min:0, max:3,
     title:t=> t===0 ? "Zero turnovers" : `${t} turnover${t>1?"s":""} or fewer`,
     ev:(c,t)=>{ const u=bv(c.box,"us","to"); if(u==null) return null; return {gap:Math.abs(u-t)+0.5, pass:u<=t, close:false, text:`${usA()} turnovers: ${u}`}; } },
   { id:"explo", short:"Explosives", std:false, title:()=>"Win the explosive-play battle",
     ev:(c)=>{ if(!c.snaps.some(s=>s.res)) return null; const u=exps(c.off), o=exps(c.def);
-      return {gap:Math.abs(u-o)/2, pass:u>o, close:u===o, text:`Explosives charted: ${usA()} ${u}, ${oppA()} ${o}`}; } },
+      return {gap:Math.abs(u-o)/2, pass:u>o, close:u===o, even:u===o, text:`Explosives charted: ${usA()} ${u}, ${oppA()} ${o}`}; } },
   { id:"exploA", short:"Explosives allowed", std:false, d:3, step:1, min:0, max:8,
     title:t=>`Allow ${t} or fewer explosive plays`,
     ev:(c,t)=>{ if(!c.def.some(s=>s.res)) return null; const o=exps(c.def);
@@ -870,14 +873,14 @@ const thOf = (k, g) => { g = g || G(); if(g.th[k.id]!=null) return g.th[k.id]; c
 function keyState(k, phase){
   const r = k.ev(ctx(phase), thOf(k));
   if(!r) return {st:"nodata", text: k.std ? "Needs the box score" : "Needs charted results"};
-  if(phase==="final") return {st: r.pass ? "won":"lost", text:r.text, pass:r.pass};
+  if(phase==="final") return {st: r.even ? "even" : r.pass ? "won":"lost", text:r.text, pass:r.pass};
   return {st: r.close ? "close" : r.pass ? "on" : "off", text:r.text, pass:r.pass};
 }
-const ST_LABEL = {won:"✓ Won",lost:"✗ Lost",on:"✓ On track",off:"✗ Off track",close:"~ Too close to call",nodata:"No data yet"};
+const ST_LABEL = {even:"~ Even",won:"✓ Won",lost:"✗ Lost",on:"✓ On track",off:"✗ Off track",close:"~ Too close to call",nodata:"No data yet"};
 function keyRecord(id, tier){
   let wW=0,wL=0,lW=0,lL=0;
   S.season.forEach(x=>{
-    if(!x.keyResults || !x.keyResults[id] || (x.result!=="W" && x.result!=="L")) return;
+    if(!x.keyResults || !x.keyResults[id] || x.keyResults[id]==="even" || (x.result!=="W" && x.result!=="L")) return;
     if(tier && x.tier!==tier) return;
     if(x.keyResults[id]==="won"){ x.result==="W" ? wW++ : wL++; } else { x.result==="W" ? lW++ : lL++; }
   });
@@ -889,6 +892,7 @@ function keyRecord(id, tier){
 function pushAlert(id, text){
   const g = G();
   if(g.alertIds.includes(id)) return;
+  const prevA = g.alerts[g.alerts.length-1]; if(prevA && prevA.text===text){ g.alertIds.push(id); return; }
   g.alertIds.push(id);
   g.alerts.push({text, n:g.snaps.length, q:g.q});
   g.caption = "";
@@ -1427,7 +1431,7 @@ function boxBlock(ph){
   const need = neededFields(), b = ph==="half" ? G().half : G().fin;
   let needed = 0, filled = 0;
   for(const f in need) for(const side in need[f]){ needed++; const v = b[side][f]; if(v!==""&&v!=null) filled++; else if(f==="to" && G().snaps.some(s=>!s.st)) filled++; }
-  const status = !needed ? "Nothing needed for your keys" : filled>=needed ? "All set" : `${needed-filled} number${needed-filled>1?"s":""} needed`;
+  const status = !needed ? "Optional" : filled>=needed ? "All set" : `${needed-filled} number${needed-filled>1?"s":""} needed`;
   const open = (needed && filled<needed) || BOX_MSG[ph];
   return `<details class="card boxd" ${open ? "open" : ""}><summary><b>Box score</b><span class="bstat">${status}</span></summary><div style="margin-top:10px">${espnBlock(ph)}${boxForm(ph)}</div></details>`;
 }
@@ -1630,7 +1634,7 @@ function espnBlock(ph){
 
 
 /* ---------- Welcome, how it works, feedback ---------- */
-const XO_VERSION = "v13, Sept 25";
+const XO_VERSION = "v13.1, Sept 25";
 function helpFooter(){
   return `<div class="foot"><button class="link" onclick="welcome()">How it works</button><button class="link" onclick="sendFeedback()">Send feedback</button><span>${XO_VERSION}</span></div>`;
 }
@@ -1710,7 +1714,7 @@ function renderLive(){
       ${us ? glyphOff(x) : glyphDef(x)}<span class="tt"><span class="nm">${x}</span><span class="sub">${us?OFF_SUB[x]:DEF_SUB[x]}</span></span></button>`).join("");
   const their = (us ? DEF : OFF).map(x=>`<button class="chip ${g.theirPkg===x?"on":""}" onclick="tapTheir('${x}')" aria-pressed="${g.theirPkg===x}">${x}</button>`).join("");
   const playBtns = ACTS.map(a=>`<button class="${isRun(a[0])?"run":"pass"}" onclick="tapAct('${a[0]}')"><small>${isRun(a[0])?"Run":"Pass"}</small>${PLAY_WORD[a[0]]}</button>`).join("");
-  const res = RESULTS.map(r=>{ const cls = (r==="TD"||r==="Turnover TD"?"wide ":"") + (r==="TD"?"td ":"") + (r==="Turnover"||r==="Turnover TD"?"bad ":"") + (lp&&lp.res===r?"on":"");
+  const res = RESULTS.map(r=>{ const cls = (r==="TD"||r==="Turnover TD"?"wide ":"") + (r==="TD"?"td ":"") + (r==="Turnover"||r==="Turnover TD"?"bad ":"") + (lp&&lp.res===r&&lp===latest&&lp.pos===g.pos?"on":"");
     return `<button class="chip ${cls}" onclick="tapRes('${r}')">${RES_LABEL[r]}</button>`; }).join("");
   let extras = "";
   if(us && rank>=2) extras += `<div class="chips"><span class="k">Tempo</span>${["Huddle","No-huddle"].map(t=>`<button class="chip ${g.tempo===t?"on":""}" onclick="tapTempo('${t}')">${t}</button>`).join("")}<button class="chip ${g.motion?"on":""}" onclick="tapMotion()">Motion this snap</button></div>`;
