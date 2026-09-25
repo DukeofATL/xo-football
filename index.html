@@ -386,6 +386,36 @@ details.boxd .bstat{margin-left:auto;font-size:13px;color:var(--muted);font-weig
 .empty2 p{margin:2px 0 0;color:var(--muted);font-size:14px}
 .foot{display:flex;flex-wrap:wrap;align-items:center;gap:10px;justify-content:center;margin:22px 0 10px;font-size:13px;color:var(--muted)}
 .link{background:0;border:0;color:var(--ink);font-weight:700;text-decoration:underline;padding:8px 4px;min-height:36px}
+
+/* welcome */
+.welcome .w-logo svg{width:64px;height:64px;border-radius:16px;display:block;margin:4px 0 10px}
+.welcome h2{margin:0 0 6px;font-size:26px}
+.w-steps{display:grid;gap:10px;margin:14px 0}
+.w-steps > div{display:flex;gap:10px;align-items:flex-start}
+.w-steps b{display:block;font-family:var(--display);font-weight:800}
+.w-steps span{display:block;color:var(--muted);font-size:14px}
+/* short phones (iPhone SE, mini): tighten Live so the whole flow fits without scrolling */
+@media (max-height: 760px){
+  .live-top{padding:6px 0}
+  .sbteam .pts{font-size:34px}
+  .sbteam{min-height:40px}
+  .sb .mid svg{width:28px;height:28px}
+  .qsel{min-height:36px}
+  .poss{margin-top:5px}
+  .poss button{min-height:38px}
+  .cap{margin-top:5px;min-height:0;font-size:13px;padding:5px 9px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .step-lab{margin:5px 0 3px}
+  .step-lab.minor{margin-top:5px}
+  .tile{min-height:0;padding:2px 7px 4px}
+  .tile svg{height:27px}
+  .tile .nm{font-size:22px}
+  .tile .sub{font-size:11px}
+  .mtile{min-height:0;padding:1px 2px 3px}
+  .mtile svg{height:20px}
+  .mtile b{font-size:12px}
+  .plays button{min-height:42px;font-size:15px}
+  .resgrid .chip{min-height:32px;padding:3px 4px;font-size:13px}
+}
 </style>
 </head>
 <body>
@@ -449,8 +479,8 @@ function freshGame(prev, first){
     id:"g"+Date.now(),
     us: prev ? prev.us : "Tennessee", usAb: prev ? prev.usAb : "TENN",
     usColors: prev && prev.usColors ? prev.usColors.slice() : ["#FF8200","#FFFFFF","#58595B"], oppColor: first ? "#BF5700" : "#5E6B78",
-    opp: first ? "Texas" : "", oppAb: first ? "TEX" : "",
-    role: first ? "Underdog" : "Underdog", tier: first ? "Top 10" : "Top 25",
+    opp: "", oppAb: "",
+    role: "Underdog", tier: "Top 25",
     notes:{off:"",def:"",news:""},
     tape:{us:{}, opp:{}, meta:{}},
     picked:[], th:{},
@@ -468,7 +498,7 @@ function blank(){
 function load(){
   try{
     const raw = localStorage.getItem(LS);
-    if(!raw) return blank();
+    if(!raw){ const b = blank(); b.firstRun = true; return b; }
     const s = JSON.parse(raw);
     const b = blank();
     return Object.assign(b, s, {profile:Object.assign(b.profile, s.profile||{})});
@@ -1459,7 +1489,8 @@ function renderScout(){
     ${topThree().length===3 && g.picked.length<3 ? `<button class="btn block" style="margin:6px 0 4px" onclick="useTopThree()">Use the top three from my book</button>` : ""}
     <div class="cats">${cats}</div>
     <button class="btn pri block" style="margin:16px 0 8px" onclick="go('live')">Go to Live</button>
-    <button class="btn block" onclick="newGame()">Start a new game</button>`;
+    <button class="btn block" onclick="newGame()">Start a new game</button>
+    ${helpFooter()}`;
 }
 
 /* ---------- Halftime and Final ---------- */
@@ -1542,7 +1573,8 @@ function renderFinalReport(){
   document.getElementById("finalActions").innerHTML = `
     <div class="row" style="margin:14px 0 8px"><button class="btn grow" onclick="showCard()">Postgame card</button>
       <button class="btn pri grow" onclick="lockGame()">${g.locked?"Update Film Room":"Lock into Film Room"}</button></div>
-    ${g.locked ? `<p class="hint">Locked into the Film Room. Lock again after changes to update it.</p><button class="btn block" style="margin-top:8px" onclick="newGame()">Start the next game</button>` : ""}`;
+    ${g.locked ? `<p class="hint">Locked into the Film Room. Tip: Film Room, then Copy backup, keeps your book safe.</p><button class="btn block" style="margin-top:8px" onclick="newGame()">Start the next game</button>` : ""}
+    ${helpFooter()}`;
 }
 
 /* ---------- Film Room ---------- */
@@ -1625,7 +1657,8 @@ function renderFilm(){
     <h3>Tendencies</h3>
     <div class="card"><div class="eyebrow">${esc(G().us)} offense</div>${tend("off", OFF, "run")}</div>
     <div class="card"><div class="eyebrow">Your defense</div>${tend("def", DEF, "they ran")}</div>
-    <div class="foot"><span>Your book lives on this device.</span><button class="link" onclick="copyBackup()">Copy backup</button><button class="link" onclick="restoreSheet()">Restore</button></div>`;
+    <div class="foot"><span>Your book lives on this device.</span><button class="link" onclick="copyBackup()">Copy backup</button><button class="link" onclick="restoreSheet()">Restore</button></div>
+    ${helpFooter()}`;
 }
 
 /* ================= Hosted data: season stats (CollegeFootballData.com) and live box scores (ESPN) ================= */
@@ -1779,6 +1812,50 @@ function espnBlock(ph){
     ${sc ? `<p class="hint" style="margin:0 0 8px">ESPN has ${esc(usA())} ${sc.us}, ${esc(oppA())} ${sc.opp}. <button class="link" onclick="useEspnScore('${ph}')">Use ESPN's score</button></p>` : ""}`;
 }
 
+
+/* ---------- Welcome, how it works, feedback ---------- */
+const XO_VERSION = "v10, Sept 25";
+function welcome(){
+  const g = G(), teamOpts = TEAMS.map((t,i)=>`<option value="${i}" ${t[0]===g.us?"selected":""}>${esc(t[0])}</option>`).join("");
+  openSheet(`<div class="welcome">
+    <div class="w-logo">${logoSVG("w")}</div>
+    <h2>Watch the game like a coach</h2>
+    <p>xO Football turns your phone into a coach's chart. You log what you see, snap by snap, and it tells you how the game is really being won.</p>
+    <div class="w-steps">
+      <div><i class="sn on">1</i><div><b>Scouting</b><span>Pick your team and three Keys to the Game before kickoff.</span></div></div>
+      <div><i class="sn on">2</i><div><b>Live</b><span>Every snap: personnel before it, the play after it, the result if you caught it.</span></div></div>
+      <div><i class="sn on">3</i><div><b>Halftime and Final</b><span>Your keys get graded, and the film tells you what the box score doesn't.</span></div></div>
+      <div><i class="sn on">4</i><div><b>Film Room</b><span>Lock the game into your book and climb the ladder from Student Assistant to Head Coach.</span></div></div>
+    </div>
+    <p class="hint">New to "11 personnel"? The two-minute install teaches it with pictures.</p>
+    <button class="btn block" onclick="openInstall('pers')">Take the two-minute install</button>
+    <label class="lab" for="wTeam" style="margin-top:14px">Who do you root for?</label>
+    <select class="f" id="wTeam"><option value="">Choose your team…</option>${teamOpts}</select>
+    <button class="btn pri block" style="margin-top:12px" onclick="finishWelcome()">Let's go</button>
+    <p class="hint" style="margin-top:10px">Everything you chart stays on this phone. Nothing is sent anywhere.</p>
+  </div>`);
+}
+function finishWelcome(){
+  const v = document.getElementById("wTeam").value;
+  if(v!=="") pickTeam("us", v);
+  S.firstRun = false; save(); closeSheet(); go("scout");
+}
+function sendFeedback(){
+  const g = G();
+  const text = `xO Football feedback (${XO_VERSION})
+Game: ${g.us||"?"} vs ${g.opp||"?"}, ${plays().length} snaps charted
+
+1. Did you chart the whole game? If not, when did you stop?
+2. What was slow or confusing on the Live screen?
+3. Did Halftime or the Final tell you something you didn't already know?
+4. Anything else:
+`;
+  if(navigator.share){ navigator.share({title:"xO Football feedback", text}).catch(()=>{}); }
+  else { location.href = "sms:?&body=" + encodeURIComponent(text); }
+}
+function helpFooter(){
+  return `<div class="foot"><button class="link" onclick="welcome()">How it works</button><button class="link" onclick="sendFeedback()">Send feedback</button><span>${XO_VERSION}</span></div>`;
+}
 /* ---------- sheet + tabs ---------- */
 function openSheet(html){ document.getElementById("sheetIn").innerHTML = html; document.getElementById("sheet").classList.add("on"); document.getElementById("scrim").classList.add("on"); document.getElementById("sheet").scrollTop = 0; }
 function closeSheet(){ document.getElementById("sheet").classList.remove("on"); document.getElementById("scrim").classList.remove("on"); }
@@ -1804,6 +1881,7 @@ let SAMPLE = null, CAN_IMG = false, IMG_TYPES = "image/*";
 })();
 go(S.tab || "scout");
 loadSeason();
+if(S.firstRun) welcome();
 </script>
 <script>
 if("serviceWorker" in navigator){ window.addEventListener("load", ()=>{ navigator.serviceWorker.register("sw.js").catch(()=>{}); }); }
