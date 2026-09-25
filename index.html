@@ -118,7 +118,7 @@ nav.tabs button.on{opacity:1;color:var(--nav-hi,#fff);box-shadow:inset 0 3px 0 v
 .loop path{fill:none;stroke:var(--emph);stroke-width:2.6;stroke-linecap:round;vector-effect:non-scaling-stroke;stroke-dasharray:1;stroke-dashoffset:1;animation:draw .75s ease-out forwards}
 @keyframes draw{to{stroke-dashoffset:0}}
 @media (prefers-reduced-motion: reduce){.loop path{animation:none;stroke-dashoffset:0}}
-.circled{position:relative;display:inline-block;padding:5px 12px}
+.circled{position:relative;display:inline-block;padding:8px 18px}
 .cap.alert b:first-child{color:var(--emph)}
 .side-lab{display:flex;justify-content:space-between;align-items:baseline;margin:10px 0 6px;font-size:14px;font-weight:700;color:var(--muted)}
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -416,6 +416,42 @@ details.boxd .bstat{margin-left:auto;font-size:13px;color:var(--muted);font-weig
   .plays button{min-height:42px;font-size:15px}
   .resgrid .chip{min-height:32px;padding:3px 4px;font-size:13px}
 }
+
+/* ===== v11 ===== */
+.banner{background:color-mix(in srgb,var(--warn) 16%,var(--surf));border:1px solid color-mix(in srgb,var(--warn) 45%,var(--line));border-radius:12px;padding:10px 12px;margin:10px 0;font-size:14px}
+.nokeys{border:2px dashed var(--hi);text-align:left}
+.nokeys b{font-family:var(--display);font-weight:800;font-size:20px}
+.nokeys p{color:var(--muted);margin:4px 0 12px}
+.grid3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.grid3 .chip,.grid4 .chip{min-height:44px;padding:6px 4px}
+.fold{display:none;margin-left:6px;border:1px solid var(--line);background:var(--surf2);border-radius:999px;font-size:12px;font-weight:700;padding:3px 10px;min-height:30px}
+.tnum{display:inline-flex;align-items:center;justify-content:center;gap:2px;width:100%}
+.tnum input.tsel{border-bottom:1.5px dashed var(--line);max-width:90px;font-variant-numeric:tabular-nums}
+.tnum input.tsel::-webkit-outer-spin-button,.tnum input.tsel::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.tnum input.tsel{-moz-appearance:textfield}
+.tnum i{font-style:normal;font-family:var(--display);font-weight:700;font-size:16px}
+.tape td.v.win .tnum input,.tape td.v.win .tnum i{color:var(--emph);font-weight:800}
+.log{padding:2px 14px}
+.logrow{display:flex;gap:8px;align-items:center;width:100%;background:0;border:0;border-bottom:1px solid var(--line);padding:10px 0;text-align:left;font-size:14px;min-height:44px}
+.log .logrow:last-child{border-bottom:0}
+.logrow .tag{font-family:var(--display);font-weight:800;font-size:13px;min-width:48px}
+.logrow .ed{font-size:12px;font-weight:700;color:var(--muted);border:1px solid var(--line);border-radius:999px;padding:2px 8px}
+.stats .drive{flex:1 1 100%;color:var(--ink);font-weight:600}
+.collide p{margin:0;font-size:16px;font-weight:600;line-height:1.4}
+.storyp p{margin:6px 0;font-size:16px;line-height:1.4}
+.dk .math{margin:10px 0 2px;font-weight:600}
+.pc-mix{display:flex;height:10px;border-radius:5px;overflow:hidden;margin:4px 0 6px;background:rgba(244,241,232,.12)}
+.pc-mix i{display:block;height:100%}
+.pc-leg{display:flex;flex-wrap:wrap;gap:10px;font-size:12.5px;color:#C3CEE4;margin-bottom:6px}
+.pc-leg i{display:inline-block;width:9px;height:9px;border-radius:2px;margin-right:4px}
+@media (max-height: 760px){
+  .fold{display:inline-flex;align-items:center}
+  .mini-tiles.folded{display:none}
+  .plays button{min-height:46px}
+  .resgrid .chip{min-height:40px}
+  .tile svg{height:30px}
+}
 </style>
 </head>
 <body>
@@ -626,6 +662,8 @@ function offSpots(grp, v){
     if(gun){ P.push({x:71,y:16,t:"o"},{x:6,y:16,t:"o"},{x:94,y:16,t:"o"},{x:42,y:34,t:"o"},{x:58,y:34,t:"o"}); }
     else   { P.push({x:71,y:16,t:"o"},{x:6,y:16,t:"o"},{x:94,y:16,t:"o"},{x:alt?55:50,y:32,t:"o"},{x:50,y:43,t:"o"}); }
   }
+  const ROLES = {"11":["te","wr","wr","wr","rb"],"10":["wr","wr","wr","wr","rb"],"12":["te","te","wr","wr","rb"],"21":["te","wr","wr","rb","rb"]};
+  (ROLES[grp]||[]).forEach((r,i)=>{ if(P[6+i]) P[6+i].k = r; });
   if(v.mirror) P.forEach(p=>p.x=100-p.x);
   return P;
 }
@@ -641,15 +679,20 @@ function defSpots(pkg, v){
   (lb===1?[50]:lb===2?[43,57]:lb===3?[38,50,62]:[33,44,56,67]).forEach(x=>P.push({x,y:30,t:"x"}));
   const gl = pkg==="Goal line";
   const dbs = gl ? [{x:16,y:38},{x:84,y:38},{x:50,y:14}] : [{x:8,y:38},{x:92,y:38},{x:34,y:12},{x:66,y:12},{x:80,y:31},{x:20,y:31}];
-  dbs.slice(0,db).forEach(p=>P.push({...p,t:"x"}));
+  dbs.slice(0,db).forEach(p=>P.push({...p,t:"x",k:"db"}));
   if(v.mirror) P.forEach(p=>p.x=100-p.x);
   return P;
 }
+/* The players that define the grouping (backs and tight ends on offense, DBs on defense) are drawn bold;
+   everyone else is quieter, so 11 and 12 read differently from two feet away. */
 function drawSpots(P, color, faint){
+  const key = p => p.k==="rb" || p.k==="te" || p.k==="db";
   return `<g>` + P.map(p=>{
-    if(p.t==="c") return `<rect x="${p.x-3}" y="${p.y-3}" width="6" height="6" fill="none" stroke="${color}" stroke-width="1.6" opacity="${faint?.35:1}"/>`;
-    if(p.t==="o") return `<circle cx="${p.x}" cy="${p.y}" r="3.1" fill="none" stroke="${color}" stroke-width="1.7" opacity="${faint?.35:1}"/>`;
-    return `<path d="M${p.x-2.8} ${p.y-2.8}L${p.x+2.8} ${p.y+2.8}M${p.x+2.8} ${p.y-2.8}L${p.x-2.8} ${p.y+2.8}" stroke="${color}" stroke-width="1.9" stroke-linecap="round" opacity="${faint?.35:1}"/>`;
+    const k = !faint && key(p), op = faint ? .35 : (k ? 1 : .42), sw = k ? 2.3 : 1.6, r = k ? 3.5 : 3;
+    if(p.t==="c") return `<rect x="${p.x-3}" y="${p.y-3}" width="6" height="6" fill="none" stroke="${color}" stroke-width="1.6" opacity="${op}"/>`;
+    if(p.t==="o") return `<circle cx="${p.x}" cy="${p.y}" r="${r}" fill="${k?color:"none"}" fill-opacity="${k?.18:0}" stroke="${color}" stroke-width="${sw}" opacity="${op}"/>`;
+    const a = k ? 3.1 : 2.7;
+    return `<path d="M${p.x-a} ${p.y-a}L${p.x+a} ${p.y+a}M${p.x+a} ${p.y-a}L${p.x-a} ${p.y+a}" stroke="${color}" stroke-width="${k?2.4:1.8}" stroke-linecap="round" opacity="${op}"/>`;
   }).join("") + `</g>`;
 }
 function glyphOff(grp, v, big, col){
@@ -686,56 +729,56 @@ const paceT = (c,t) => (c.phase==="final" || (c.phase==="live" && G().q>=3)) ? t
 const KEYS = [
   { id:"to", short:"Turnovers", std:true, title:()=>"Win the turnover battle",
     ev:(c)=>{ const u=bv(c.box,"us","to"), o=bv(c.box,"opp","to"); if(u==null||o==null) return null;
-      return {pass:u<o, close:u===o, text:`Turnovers: ${usA()} ${u}, ${oppA()} ${o}`}; } },
+      return {gap:Math.abs(u-o), pass:u<o, close:u===o, text:`Turnovers: ${usA()} ${u}, ${oppA()} ${o}`}; } },
   { id:"protect", short:"Ball security", std:true, d:0, step:1, min:0, max:3,
     title:t=> t===0 ? "Zero turnovers" : `${t} turnover${t>1?"s":""} or fewer`,
-    ev:(c,t)=>{ const u=bv(c.box,"us","to"); if(u==null) return null; return {pass:u<=t, close:false, text:`${usA()} turnovers: ${u}`}; } },
+    ev:(c,t)=>{ const u=bv(c.box,"us","to"); if(u==null) return null; return {gap:Math.abs(u-t)+0.5, pass:u<=t, close:false, text:`${usA()} turnovers: ${u}`}; } },
   { id:"explo", short:"Explosives", std:false, title:()=>"Win the explosive-play battle",
     ev:(c)=>{ if(!c.snaps.some(s=>s.res)) return null; const u=exps(c.off), o=exps(c.def);
-      return {pass:u>o, close:u===o, text:`Explosives charted: ${usA()} ${u}, ${oppA()} ${o}`}; } },
+      return {gap:Math.abs(u-o)/2, pass:u>o, close:u===o, text:`Explosives charted: ${usA()} ${u}, ${oppA()} ${o}`}; } },
   { id:"exploA", short:"Explosives allowed", std:false, d:3, step:1, min:0, max:8,
     title:t=>`Allow ${t} or fewer explosive plays`,
     ev:(c,t)=>{ if(!c.def.some(s=>s.res)) return null; const o=exps(c.def);
-      return {pass:o<=t, close:o===t, text:`${oppA()} explosives charted: ${o}`}; } },
+      return {gap:Math.abs(o-t)/Math.max(1,t), pass:o<=t, close:o===t, text:`${oppA()} explosives charted: ${o}`}; } },
   { id:"thirdO", short:"3rd down", std:true, d:40, step:5, min:20, max:70, title:t=>`Convert ${t}%+ on third down`,
     ev:(c,t)=>{ const m=bv(c.box,"us","thirdConv"), a=bv(c.box,"us","thirdAtt"); if(m==null||!a) return null;
-      const p=Math.round(m/a*100); return {pass:p>=t, close:Math.abs(p-t)<=5, text:`${usA()} ${m} of ${a} (${p}%)`}; } },
+      const p=Math.round(m/a*100); return {gap:Math.abs(p-t)/20, pass:p>=t, close:Math.abs(p-t)<=5, text:`${usA()} ${m} of ${a} (${p}%)`}; } },
   { id:"thirdD", short:"3rd down defense", std:true, d:35, step:5, min:15, max:60, title:t=>`Hold ${oppN()} to ${t}% or less on third down`,
     ev:(c,t)=>{ const m=bv(c.box,"opp","thirdConv"), a=bv(c.box,"opp","thirdAtt"); if(m==null||!a) return null;
-      const p=Math.round(m/a*100); return {pass:p<=t, close:Math.abs(p-t)<=5, text:`${oppA()} ${m} of ${a} (${p}%)`}; } },
+      const p=Math.round(m/a*100); return {gap:Math.abs(p-t)/20, pass:p<=t, close:Math.abs(p-t)<=5, text:`${oppA()} ${m} of ${a} (${p}%)`}; } },
   { id:"runO", short:"Run game", std:true, d:4.5, step:0.5, min:2.5, max:7, title:t=>`Run for ${t.toFixed(1)}+ yards per carry`,
     ev:(c,t)=>{ const y=bv(c.box,"us","rushYds"), a=bv(c.box,"us","rushAtt"); if(y==null||!a) return null;
-      const p=y/a; return {pass:p>=t, close:Math.abs(p-t)<=0.4, text:`${usA()} ${p.toFixed(1)} per carry`}; } },
+      const p=y/a; return {gap:Math.abs(p-t)/1.5, pass:p>=t, close:Math.abs(p-t)<=0.4, text:`${usA()} ${p.toFixed(1)} per carry`}; } },
   { id:"runD", short:"Run defense", std:true, d:4.0, step:0.5, min:2, max:6, title:t=>`Hold ${oppN()} to ${t.toFixed(1)} yards per carry or less`,
     ev:(c,t)=>{ const y=bv(c.box,"opp","rushYds"), a=bv(c.box,"opp","rushAtt"); if(y==null||!a) return null;
-      const p=y/a; return {pass:p<=t, close:Math.abs(p-t)<=0.4, text:`${oppA()} ${p.toFixed(1)} per carry`}; } },
+      const p=y/a; return {gap:Math.abs(p-t)/1.5, pass:p<=t, close:Math.abs(p-t)<=0.4, text:`${oppA()} ${p.toFixed(1)} per carry`}; } },
   { id:"rzO", short:"Red zone", std:true, d:60, step:10, min:30, max:100, title:t=>`Touchdowns on ${t}%+ of red zone trips`,
     ev:(c,t)=>{ const d=bv(c.box,"us","rzTd"), n=bv(c.box,"us","rzTrips"); if(d==null||!n) return null;
-      const p=Math.round(d/n*100); return {pass:p>=t, close:Math.abs(p-t)<=10, text:`${usA()} ${d} TDs on ${n} trips`}; } },
+      const p=Math.round(d/n*100); return {gap:Math.abs(p-t)/30, pass:p>=t, close:Math.abs(p-t)<=10, text:`${usA()} ${d} TDs on ${n} trips`}; } },
   { id:"rzD", short:"Red zone defense", std:true, d:50, step:10, min:20, max:80, title:t=>`Hold ${oppN()} to ${t}% red zone touchdowns or less`,
     ev:(c,t)=>{ const d=bv(c.box,"opp","rzTd"), n=bv(c.box,"opp","rzTrips"); if(n==null) return null;
-      if(n===0) return {pass:true, close:false, text:`${oppA()} kept out of the red zone`}; if(d==null) return null;
-      const p=Math.round(d/n*100); return {pass:p<=t, close:Math.abs(p-t)<=10, text:`${oppA()} ${d} TDs on ${n} trips`}; } },
+      if(n===0) return {gap:1, pass:true, close:false, text:`${oppA()} kept out of the red zone`}; if(d==null) return null;
+      const p=Math.round(d/n*100); return {gap:Math.abs(p-t)/30, pass:p<=t, close:Math.abs(p-t)<=10, text:`${oppA()} ${d} TDs on ${n} trips`}; } },
   { id:"sched", short:"On schedule", std:false, d:50, step:5, min:30, max:70, title:t=>`Stay on schedule: 4+ yards on ${t}%+ of snaps`,
     ev:(c,t)=>{ const l=c.off.filter(s=>s.res); if(l.length<5) return null;
       const p=Math.round(l.filter(s=>["4+","Explosive","TD"].includes(s.res)).length/l.length*100);
-      return {pass:p>=t, close:Math.abs(p-t)<=5, text:`${p}% of ${l.length} charted results`}; } },
+      return {gap:Math.abs(p-t)/20, pass:p>=t, close:Math.abs(p-t)<=5, text:`${p}% of ${l.length} charted results`}; } },
   { id:"bal", short:"Balance", std:false, d:40, step:5, min:25, max:45, title:t=>`Stay balanced: run between ${t}% and ${100-t}%`,
     ev:(c,t)=>{ if(c.off.length<8) return null; const p=Math.round(runRate(c.off)*100);
-      return {pass:p>=t&&p<=100-t, close:Math.abs(p-t)<=5||Math.abs(p-(100-t))<=5, text:`${usA()} ran on ${p}% of ${c.off.length} snaps`}; } },
+      return {gap:(p<t?t-p:p>100-t?p-(100-t):Math.min(p-t,100-t-p))/20, pass:p>=t&&p<=100-t, close:Math.abs(p-t)<=5||Math.abs(p-(100-t))<=5, text:`${usA()} ran on ${p}% of ${c.off.length} snaps`}; } },
   { id:"bigO", short:"Big plays", std:false, d:4, step:1, min:1, max:10, title:t=>`Hit ${t}+ explosive plays`,
     ev:(c,t)=>{ if(!c.off.some(s=>s.res)) return null; const u=exps(c.off), tg=paceT(c,t);
-      return {pass:u>=tg, close:u===tg-1, text:`${usA()} explosives charted: ${u}`}; } },
+      return {gap:Math.abs(u-tg)/Math.max(1,tg), pass:u>=tg, close:u===tg-1, text:`${usA()} explosives charted: ${u}`}; } },
   { id:"stuffs", short:"Stuffs", std:false, d:5, step:1, min:2, max:12, title:t=>`Stuff ${oppN()} ${t}+ times`,
     ev:(c,t)=>{ if(!c.def.some(s=>s.res)) return null; const n=c.def.filter(s=>s.res==="Stuffed").length, tg=paceT(c,t);
-      return {pass:n>=tg, close:n===tg-1, text:`Stuffs charted: ${n}`}; } },
+      return {gap:Math.abs(n-tg)/Math.max(1,tg), pass:n>=tg, close:n===tg-1, text:`Stuffs charted: ${n}`}; } },
   { id:"ptsO", short:"Points", std:false, src:"score", d:28, step:3, min:10, max:56, title:t=>`Score ${t}+ points`,
-    ev:(c,t)=>{ const u=G().score.us, tg=paceT(c,t); return {pass:u>=tg, close:Math.abs(u-tg)<=3, text:`${usA()} ${u} points${c.phase==="final"?"":` (on pace for ${tg} by now)`}`}; } },
+    ev:(c,t)=>{ const u=G().score.us, tg=paceT(c,t); return {gap:Math.abs(u-tg)/10, pass:u>=tg, close:Math.abs(u-tg)<=3, text:`${usA()} ${u} points${c.phase==="final"?"":` (on pace for ${tg} by now)`}`}; } },
   { id:"ptsD", short:"Points allowed", std:false, src:"score", d:21, step:3, min:3, max:45, title:t=>`Hold ${oppN()} to ${t} points or fewer`,
-    ev:(c,t)=>{ const o=G().score.opp, tg=paceT(c,t); return {pass:o<=tg, close:Math.abs(o-tg)<=3, text:`${oppA()} ${o} points`}; } },
+    ev:(c,t)=>{ const o=G().score.opp, tg=paceT(c,t); return {gap:Math.abs(o-tg)/10, pass:o<=tg, close:Math.abs(o-tg)<=3, text:`${oppA()} ${o} points`}; } },
   { id:"yds", short:"Yardage", std:true, title:()=>`Outgain ${oppN()}`,
     ev:(c)=>{ const u=bv(c.box,"us","yds"), o=bv(c.box,"opp","yds"); if(u==null||o==null) return null;
-      return {pass:u>o, close:Math.abs(u-o)<=25, text:`Yards: ${usA()} ${u}, ${oppA()} ${o}`}; } }
+      return {gap:Math.abs(u-o)/100, pass:u>o, close:Math.abs(u-o)<=25, text:`Yards: ${usA()} ${u}, ${oppA()} ${o}`}; } }
 ];
 const KEY = Object.fromEntries(KEYS.map(k=>[k.id,k]));
 function tapeTh(id, g){
@@ -760,6 +803,22 @@ const KEY_CATS = [
   {id:"score", n:"Scoreboard",      d:"Points for and points against",            keys:["ptsO","ptsD"]},
   {id:"rhythm",n:"Rhythm",          d:"Staying on schedule and balanced",         keys:["sched","bal","yds"]}
 ];
+function suggestKeys(){
+  const g = G(), top = g.tier==="Top 10" || g.tier==="Top 25", low = g.tier==="Group of Five" || g.tier==="FCS";
+  let ks = g.role==="Underdog" ? (top ? ["exploA","to","thirdD"] : ["exploA","to","runD"])
+         : g.role==="Favorite" ? (low ? ["protect","sched","bigO"] : ["protect","runO","ptsD"])
+         : ["to","explo","thirdO"];
+  const o = typeof seasonTeam==="function" ? seasonTeam(g.opp) : null, rr = o && o.tend ? o.tend.runRate : null;
+  if(rr!=null && rr>=55 && !ks.includes("runD")) ks[2] = "runD";
+  if(rr!=null && rr<=42 && !ks.includes("exploA")) ks[2] = "exploA";
+  return [...new Set(ks)].slice(0,3);
+}
+function suggestWhy(){
+  const g = G(), o = typeof seasonTeam==="function" ? seasonTeam(g.opp) : null, rr = o && o.tend ? o.tend.runRate : null;
+  let w = `Suggested for ${g.role==="Pick'em"?"a pick'em":g.role==="Underdog"?"an underdog":"a favorite"} against a ${g.tier} opponent`;
+  if(rr!=null && (rr>=55||rr<=42)) w += `, and ${oppN()} runs on ${Math.round(rr)}% of plays`;
+  return w + ". Tap a key to swap it.";
+}
 const keySrc = k => k.src==="score" ? "Scored from the scoreboard" : k.std ? "Scored from the box score" : "Scored from your charting";
 const thOf = (k, g) => { g = g || G(); if(g.th[k.id]!=null) return g.th[k.id]; const t = tapeTh(k.id, g); return t!=null ? t : k.d; };
 function keyState(k, phase){
@@ -772,7 +831,7 @@ const ST_LABEL = {won:"✓ Won",lost:"✗ Lost",on:"✓ On track",off:"✗ Off t
 function keyRecord(id, tier){
   let wW=0,wL=0,lW=0,lL=0;
   S.season.forEach(x=>{
-    if(!x.keyResults || !x.keyResults[id] || x.result==="T") return;
+    if(!x.keyResults || !x.keyResults[id] || (x.result!=="W" && x.result!=="L")) return;
     if(tier && x.tier!==tier) return;
     if(x.keyResults[id]==="won"){ x.result==="W" ? wW++ : wL++; } else { x.result==="W" ? lW++ : lL++; }
   });
@@ -847,7 +906,7 @@ const RANKS = [
   {n:"Coordinator", stage:"See it before the snap", adds:"Pre-snap calls and the \u201cthey changed something\u201d flag"},
   {n:"Head Coach", stage:"See it before the data", adds:"One per fanbase. Leads the Staff and writes the Scouting Report"}
 ];
-function fullGames(){ return S.season.filter(x=>x.snaps>=40 && x.offN>=10 && x.defN>=10).length; }
+function fullGames(){ return S.season.filter(x=>!x.partial && x.snaps>=40 && x.offN>=10 && x.defN>=10).length; }
 function rankReqs(){
   const P = S.profile, fg = fullGames();
   return [
@@ -965,11 +1024,6 @@ const TAPE = [
 ];
 let TAPE_MSG = "";
 function tv(side,f){ const v = G().tape[side][f]; return v===""||v==null||isNaN(+v) ? null : +v; }
-function tsel(side, f, opts, suf, sign, cls){
-  const cur = G().tape[side][f]; const val = cur==null ? "" : String(cur);
-  return `<select class="tsel ${cls||""}" aria-label="${side==="meta" ? "Through week" : esc(side==="us"?usA():oppA())+" "+f}" onchange="setTape('${side}','${f}',this.value)">
-    <option value="">–</option>${opts.map(o=>`<option value="${o}" ${o===val?"selected":""}>${sign&&+o>0?"+":""}${o}${suf||""}</option>`).join("")}</select>`;
-}
 function tapeHTML(){
   const g = G(), T = g.tape;
   const rec = side => `<span class="recsel">${tsel(side,"w",rng(0,15,1,0))}<span>–</span>${tsel(side,"l",rng(0,15,1,0))}</span>`;
@@ -1038,7 +1092,7 @@ function pickTeam(side, idx){
 }
 function setSel(k, v){ G()[k] = v; save(); renderScout(); }
 function togglePick(id){
-  const g = G(); const i = g.picked.indexOf(id);
+  const g = G(); g.keysTouched = true; g.keysSuggested = false; const i = g.picked.indexOf(id);
   if(i>=0) g.picked.splice(i,1);
   else { if(g.picked.length>=3){ alert("You have three keys. Tap one of your picks to drop it first."); return; } g.picked.push(id); }
   save(); renderScout();
@@ -1177,15 +1231,6 @@ function startSecondHalf(){ const g = G(); if(g.q<3) g.q = 3; g.caption = "<b>Se
 
 /* ---------- final ---------- */
 function outcome(){ const g=G(); return g.score.us>g.score.opp ? "W" : g.score.us<g.score.opp ? "L" : "T"; }
-function decidingKey(){
-  const res = outcome(); if(res==="T") return null;
-  const aligned = id => { const raw = KEY[id].ev(ctx("final"), thOf(KEY[id])); if(!raw || raw.close) return false; return raw.pass === (res==="W"); };
-  const rank = ids => ids.sort((a,b)=>keyRecord(b).rate - keyRecord(a).rate);
-  const mine = rank(G().picked.filter(aligned));
-  if(mine.length) return {id:mine[0], mine:true};
-  const all = rank(KEYS.map(k=>k.id).filter(aligned));
-  return all.length ? {id:all[0], mine:false} : null;
-}
 function story(){
   const g = G(), res = outcome(), off = plays(s=>s.pos==="us"), def = plays(s=>s.pos==="opp");
   const bits = [];
@@ -1210,59 +1255,12 @@ function howLines(){
   if(!L.length) L.push("Chart some snaps and the story shows up here.");
   return L;
 }
-function lockGame(){
-  const g = G(), off = plays(s=>s.pos==="us"), def = plays(s=>s.pos==="opp");
-  if(!g.opp){ alert("Add the opponent in the Scouting Report first."); return; }
-  const agg = {off:{}, def:{}};
-  off.forEach(s=>{ const a = agg.off[s.grp] = agg.off[s.grp]||{n:0,run:0,exp:0}; a.n++; if(isRun(s.act)) a.run++; if(s.res==="Explosive") a.exp++; });
-  def.forEach(s=>{ const a = agg.def[s.grp] = agg.def[s.grp]||{n:0,run:0,exp:0}; a.n++; if(isRun(s.act)) a.run++; if(s.res==="Explosive") a.exp++; });
-  const keyResults = {}; KEYS.forEach(k=>{ const r = keyState(k,"final"); if(r.st!=="nodata") keyResults[k.id] = r.st; });
-  const d = decidingKey();
-  const row = { id:g.id, us:g.us, opp:g.opp, role:g.role, tier:g.tier, score:{...g.score}, result:outcome(),
-    snaps:off.length+def.length, offN:off.length, defN:def.length, agg, keyResults, picked:g.picked.slice(),
-    deciding:d?d.id:null, pickedDeciding:!!(d&&d.mine), story:story(), when:Date.now() };
-  const i = S.season.findIndex(x=>x.id===g.id);
-  if(i>=0) S.season[i] = row; else S.season.push(row);
-  g.locked = true; save(); renderFinalReport();
-}
-function showCard(){
-  const g = G(), res = outcome(), d = decidingKey();
-  const el = document.getElementById("card");
-  el.innerHTML = `<div class="row" style="max-width:460px;margin:0 auto"><span class="grow hint">Screenshot this card for the group chat.</span><button class="x" onclick="hideCard()">Close</button></div>
-    <div class="pc">
-      <div class="top">${logoSVG("c")}<div class="hd">Final. ${esc(g.role==="Pick'em"?"Pick'em":"Listed "+g.role.toLowerCase())}, ${esc(g.tier)} opponent</div></div>
-      <div class="sc"><span class="t"><span class="ab" style="background:${esc(g.usColors[0])};color:${inkOn(g.usColors[0])}">${esc(usA())}</span>${g.score.us}</span><span class="t">${g.score.opp}<span class="ab" style="background:${esc(g.oppColor)};color:${inkOn(g.oppColor)}">${esc(oppA())}</span></span></div>
-      <div class="story">${esc(story())}</div>
-      ${g.picked.map(id=>{ const k=KEY[id], r=keyState(k,"final"); return `<div class="kl"><span>${esc(k.title(thOf(k)))}</span><span class="st ${r.st}">${ST_LABEL[r.st]}</span></div>`; }).join("")}
-      ${d ? `<div class="kl"><span><b>Deciding Key</b></span><span>${esc(KEY[d.id].short)}</span></div>` : ""}
-      <div class="by">Charted snap by snap on xO Football${S.profile.name ? " by "+esc(S.profile.name) : ""}. ${plays().length} snaps.</div>
-    </div>`;
-  el.classList.add("on");
-}
 function hideCard(){ document.getElementById("card").classList.remove("on"); }
 
 /* ---------- Film Room ---------- */
 function setName(v){ S.profile.name = v.slice(0,40); save(); }
 let FILMTIER = "All";
 function setFilmTier(t){ FILMTIER = t; renderFilm(); }
-function copyBackup(){
-  const txt = JSON.stringify(S);
-  const done = () => alert("Backup copied. Paste it somewhere safe, like a note.");
-  if(navigator.clipboard) navigator.clipboard.writeText(txt).then(done).catch(()=>showBackup(txt)); else showBackup(txt);
-}
-function showBackup(txt){
-  openSheet(`<div class="sheet-h"><h3>Backup</h3><button class="x" onclick="closeSheet()">Close</button></div><p class="hint">Select all and copy.</p><textarea class="f" style="min-height:200px">${esc(txt)}</textarea>`);
-}
-function restoreSheet(){
-  openSheet(`<div class="sheet-h"><h3>Restore</h3><button class="x" onclick="closeSheet()">Close</button></div>
-    <p class="hint">Paste a backup. This replaces everything on this device.</p><textarea class="f" id="rTxt" style="min-height:160px"></textarea>
-    <button class="btn pri block" style="margin-top:8px" onclick="doRestore()">Restore this backup</button>`);
-}
-function doRestore(){
-  try{ const s = JSON.parse(document.getElementById("rTxt").value); if(!s || !s.game || !Array.isArray(s.season)) throw 0;
-    S = Object.assign(blank(), s); save(); closeSheet(); go("film"); }
-  catch(e){ alert("That doesn't look like an xO Football backup. Copy the whole thing and try again."); }
-}
 
 /* ---------- installs ---------- */
 function openInstall(id){
@@ -1335,18 +1333,6 @@ function emptyState(svg, title, text){
 /* ---------- Live: personnel, then the play, then the result ---------- */
 function tapGrp(x){ const g=G(); g.grp[g.pos]=x; g.lastGrp[g.pos]=x; g.awaitRes=false; save(); renderLive(); }
 function tapTheir(p){ const g=G(); g.theirPkg = g.theirPkg===p ? null : p; g.awaitRes=false; save(); renderLive(); }
-function tapAct(code){
-  const g = G(), grp = g.grp[g.pos];
-  if(!grp){ g.caption = "Tap the "+(g.pos==="us"?"personnel":"package")+" first."; renderLive(); return; }
-  const s = { pos:g.pos, grp, act:code, res:null, q:g.q, series:g.series };
-  if(g.theirPkg) s.vs = g.theirPkg;
-  if(g.pos==="us"){ if(g.tempo) s.tempo = g.tempo; if(g.motion) s.motion = true; }
-  g.snaps.push(s);
-  g.theirPkg = null; g.motion = false; g.awaitRes = true;
-  g.caption = captionFor(s);
-  checkAlerts();
-  save(); renderLive();
-}
 const ST_KINDS = {
   "Punt":{flip:1}, "Field goal good":{pts:3,flip:1}, "Field goal missed":{flip:1},
   "Extra point good":{pts:1,flip:1}, "Extra point missed":{flip:1}, "Two-point good":{pts:2,flip:1}, "Two-point failed":{flip:1}
@@ -1379,61 +1365,6 @@ function stSheet(){
     <div class="grid2"><button class="btn" onclick="logKick('us')">${esc(usA())} kicks off</button><button class="btn" onclick="logKick('opp')">${esc(oppA())} kicks off</button></div>`);
 }
 const PLAY_WORD = {RL:"Left",RM:"Middle",RR:"Right",PS:"Short",PM:"Mid",PD:"Deep"};
-function renderLive(){
-  const g = G(), rank = rankNow(), us = g.pos==="us";
-  const lastAlert = g.alerts[g.alerts.length-1];
-  const showAlert = lastAlert && lastAlert.n===g.snaps.length && !g.caption;
-  const cap = showAlert ? `<div class="cap alert">${markerLoop()}<b>Tendency Alert.</b> ${esc(lastAlert.text)}</div>`
-                        : `<div class="cap">${g.caption || "Personnel before the snap, the play after it, then the result."}</div>`;
-  document.getElementById("liveTop").innerHTML = `
-    <div class="sb">
-      <button class="sbteam" onclick="scoreSheet('us')" aria-label="${esc(usN())} score"><span class="ab us">${esc(usA())}</span><span class="pts">${g.score.us}</span></button>
-      <div class="mid">${logoSVG("lv")}<select class="qsel" onchange="setQ(this.value)" aria-label="Quarter">${[1,2,3,4,5].map(n=>`<option value="${n}" ${g.q===n?"selected":""}>${n===5?"OT":"Q"+n}</option>`).join("")}</select></div>
-      <button class="sbteam r" onclick="scoreSheet('opp')" aria-label="${esc(oppN())} score"><span class="pts">${g.score.opp}</span><span class="ab opp">${esc(oppA())}</span></button>
-    </div>
-    <div class="poss">
-      <button class="us ${us?"on":""}" onclick="setPos('us')">${esc(usA())} ball</button>
-      <button class="opp ${!us?"on":""}" onclick="setPos('opp')">${esc(oppA())} ball</button>
-      <button class="tool" onclick="stSheet()" aria-label="Special teams">ST</button>
-      <button class="tool" onclick="undo()" aria-label="Undo the last entry">Undo</button>
-    </div>${cap}`;
-  const lp = lastPlay(), latest = g.snaps[g.snaps.length-1];
-  const awaiting = !!(g.awaitRes && lp && latest===lp && !lp.res);
-  const list = us ? OFF : DEF, sel = g.grp[g.pos];
-  const tiles = list.map(x=>`<button class="tile ${sel===x?"on":""}" onclick="tapGrp('${x}')" aria-pressed="${sel===x}">
-      ${us ? glyphOff(x) : glyphDef(x)}<span class="tt"><span class="nm">${x}</span><span class="sub">${us?OFF_SUB[x]:DEF_SUB[x]}</span></span></button>`).join("");
-  const theirList = us ? DEF : OFF;
-  const their = theirList.map(x=>`<button class="mtile ${g.theirPkg===x?"on":""}" onclick="tapTheir('${x}')" aria-pressed="${g.theirPkg===x}">
-      ${us ? glyphDef(x,null,false,"var(--muted)") : glyphOff(x,null,false,"var(--muted)")}<b>${x}</b></button>`).join("");
-  const playBtns = ACTS.map(a=>`<button class="${isRun(a[0])?"run":"pass"}" onclick="tapAct('${a[0]}')"><small>${isRun(a[0])?"Run":"Pass"}</small>${PLAY_WORD[a[0]]}</button>`).join("");
-  const res = RESULTS.map(r=>{ const cls = (r==="TD"||r==="Turnover TD"?"wide ":"") + (r==="TD"?"td ":"") + (r==="Turnover"||r==="Turnover TD"?"bad ":"") + (lp&&lp.res===r?"on":"");
-    return `<button class="chip ${cls}" onclick="tapRes('${r}')">${RES_LABEL[r]}</button>`; }).join("");
-  let extras = "";
-  if(us && rank>=2) extras += `<div class="chips"><span class="k">Tempo</span>${["Huddle","No-huddle"].map(t=>`<button class="chip ${g.tempo===t?"on":""}" onclick="tapTempo('${t}')">${t}</button>`).join("")}<button class="chip ${g.motion?"on":""}" onclick="tapMotion()">Motion this snap</button></div>`;
-  if(!us && rank>=3) extras += `<div class="chips"><span class="k">Rushers, last snap</span>${["4","5+"].map(r=>`<button class="chip ${lp&&lp.pos==="opp"&&lp.rush===r?"on":""}" onclick="tapRush('${r}')">${r}</button>`).join("")}</div>`;
-  const off = plays(s=>s.pos==="us"), def = plays(s=>s.pos==="opp");
-  const drive = (us ? off : def).filter(s=>s.series===g.series).length;
-  const strip = g.picked.map(id=>{ const k=KEY[id]; const r=keyState(k,"live"); const box=k.std;
-      return `<span class="kp ${box?"":r.st}">${k.short}: ${box?"scored at half":ST_LABEL[r.st].toLowerCase()}</span>`; }).join("");
-  const log = g.snaps.slice(-8).reverse().map(s=> s.st
-      ? `<div><span class="tag">${s.pos==="us"?esc(usA()):esc(oppA())}</span><span>${s.st} (${s.q===5?"OT":"Q"+s.q})</span></div>`
-      : `<div><span class="tag ${s.pos==="us"?"o":"d"}">${s.pos==="us"?esc(usA()):esc(oppA())}</span><span>${s.pos==="us"?s.grp+" personnel":"vs your "+s.grp}, ${ACT[s.act][2]}${s.res?", "+RES_LABEL[s.res]:""}${s.vs?" (they were in "+s.vs+")":""}</span></div>`).join("");
-  document.getElementById("livePad").innerHTML = `
-    <div class="step-lab"><span><i class="sn ${awaiting?"":"on"}">1</i>${us?`${esc(usN())} personnel`:"Your defensive package"}</span><span>before the snap</span></div>
-    <div class="tiles">${tiles}</div>
-    <div class="step-lab minor"><span>${us?"Their defense":"Their personnel"}</span><span>optional, this snap only</span></div>
-    <div class="mini-tiles">${their}</div>
-    <div class="step-lab"><span><i class="sn">2</i>The play</span><span>after the snap</span></div>
-    <div class="plays">${playBtns}</div>
-    <div class="step-lab"><span><i class="sn ${awaiting?"on":""}">3</i>Result <button class="qm" onclick="resHelp()" aria-label="What the results mean">?</button></span><span>optional</span></div>
-    <div class="resgrid ${awaiting?"ready":""}">${res}</div>
-    ${extras}
-    <div class="stats"><span>Offense <b>${off.length}</b></span><span>Defense <b>${def.length}</b></span><span>This drive <b>${drive}</b></span><span>Alerts <b>${g.alerts.length}</b></span></div>
-    ${g.picked.length ? `<div class="strip">${strip}</div>` : ""}
-    <h3>Last snaps</h3>
-    <div class="card log">${log || `<div class="hint">Nothing charted yet.</div>`}</div>
-    ${g.alerts.length ? `<h3>Tendency Alerts</h3><div class="card lines">${g.alerts.slice().reverse().map(a=>`<p>${esc(a.text)} <span class="muted small">(${a.q===5?"OT":"Q"+a.q})</span></p>`).join("")}</div>` : ""}`;
-}
 
 /* ---------- Scouting Report: keys by category ---------- */
 let OPEN_CAT = null;
@@ -1450,56 +1381,8 @@ function keyCard(id){
     <div class="s">${keySrc(k)}.${g.th[id]==null && tapeTh(id)!=null ? " Line set from the Tale of the Tape." : ""} ${hist}</div>
     ${step ? `<div style="grid-column:1/3">${step}</div>` : ""}</div>`;
 }
-function renderScout(){
-  const g = G();
-  const teamOpts = TEAMS.map((t,i)=>`<option value="${i}">${esc(t[0])}</option>`).join("");
-  const picks = `<div class="row" style="gap:12px;flex-wrap:wrap">${[0,1,2].map(i=>`<label class="cpick"><input type="color" value="${esc(g.usColors[i])}" aria-label="${["Primary","Secondary","Third"][i]} color" onchange="setUsColor(${i},this.value)"><span>${["Primary","Secondary","Third"][i]}</span></label>`).join("")}
-    <label class="cpick"><input type="color" value="${esc(g.oppColor)}" aria-label="Opponent color" onchange="setColor('oppColor',this.value)"><span>${esc(oppA())}</span></label></div>`;
-  const byRate = ids => ids.slice().sort((a,b)=>{ const ra=keyRecord(a), rb=keyRecord(b); return (rb.n>=2?rb.rate:-1)-(ra.n>=2?ra.rate:-1); });
-  const slots = [0,1,2].map(i=>{ const id = g.picked[i];
-    if(!id) return `<div class="slot empty"><i class="sn">${i+1}</i><span>Open a category below and pick a key</span></div>`;
-    const k = KEY[id];
-    return `<button class="slot" onclick="togglePick('${id}')" aria-label="Remove this key"><i class="sn on">${i+1}</i><span class="grow">${esc(k.title(thOf(k)))}</span><span class="rm">×</span></button>`; }).join("");
-  const cats = KEY_CATS.map(c=>{
-    const open = OPEN_CAT===c.id, n = c.keys.filter(id=>g.picked.includes(id)).length;
-    return `<div class="cat ${open?"open":""}"><button class="cat-h" onclick="toggleCat('${c.id}')" aria-expanded="${open}">
-        <span class="grow"><b>${c.n}</b><small>${c.d}</small></span>${n?`<i class="pill">${n} picked</i>`:""}<i class="chev" aria-hidden="true">${open?"−":"+"}</i></button>
-        ${open ? `<div class="cat-b">${byRate(c.keys).map(keyCard).join("")}</div>` : ""}</div>`;
-  }).join("");
-  document.getElementById("scoutOut").innerHTML = `
-    ${pageHead("Scouting Report", `${esc(usN())} vs ${esc(oppN())}. Listed ${g.role==="Pick'em"?"pick'em":g.role.toLowerCase()}, ${esc(g.tier)} opponent.`)}
-    <div class="card">
-      <div class="grid2">
-        <div><label class="lab" for="qUs">Pick your team</label><select class="f" id="qUs" onchange="pickTeam('us',this.value)"><option value="">Choose…</option>${teamOpts}</select></div>
-        <div><label class="lab" for="qOpp">Pick the opponent</label><select class="f" id="qOpp" onchange="pickTeam('opp',this.value)"><option value="">Choose…</option>${teamOpts}</select></div>
-        <div><label class="lab" for="fUs">Your team</label><input class="f" id="fUs" value="${esc(g.us)}" onchange="setField('us',this.value);renderScout()"></div>
-        <div><label class="lab" for="fUsA">Short name</label><input class="f" id="fUsA" value="${esc(g.usAb)}" onchange="setAb('usAb',this.value);renderScout()"></div>
-        <div><label class="lab" for="fOpp">Opponent</label><input class="f" id="fOpp" value="${esc(g.opp)}" placeholder="Texas" onchange="setField('opp',this.value);renderScout()"></div>
-        <div><label class="lab" for="fOppA">Short name</label><input class="f" id="fOppA" value="${esc(g.oppAb)}" placeholder="TEX" onchange="setAb('oppAb',this.value);renderScout()"></div>
-        <div style="grid-column:1/3"><span class="lab">${esc(usN())} colors run the app. The ${esc(oppA())} color marks their side.</span>${picks}</div>
-        <div><label class="lab" for="fRole">Listed as</label><select class="f" id="fRole" onchange="setSel('role',this.value)">${ROLES.map(r=>`<option ${g.role===r?"selected":""}>${r}</option>`).join("")}</select></div>
-        <div><label class="lab" for="fTier">Opponent tier</label><select class="f" id="fTier" onchange="setSel('tier',this.value)">${TIERS.map(r=>`<option ${g.tier===r?"selected":""}>${r}</option>`).join("")}</select></div>
-      </div>
-    </div>
-    <h3>Tale of the Tape</h3>
-    <div class="card">${tapeHTML()}</div>
-    ${tendHTML()}
-    <h3>Keys to the Game</h3>
-    <div class="three">${slots}</div>
-    ${topThree().length===3 && g.picked.length<3 ? `<button class="btn block" style="margin:6px 0 4px" onclick="useTopThree()">Use the top three from my book</button>` : ""}
-    <div class="cats">${cats}</div>
-    <button class="btn pri block" style="margin:16px 0 8px" onclick="go('live')">Go to Live</button>
-    <button class="btn block" onclick="newGame()">Start a new game</button>
-    ${helpFooter()}`;
-}
 
 /* ---------- Halftime and Final ---------- */
-function keyCards(ph){
-  const g = G();
-  if(!g.picked.length) return `<div class="card">${emptyState(glyphOff("11"), "No keys picked", "Pick three in the Scouting Report and they're graded here.")}</div>`;
-  return `<div class="kcards">${g.picked.map(id=>{ const k=KEY[id], r=keyState(k,ph);
-    return `<div class="kcard ${r.st}"><span class="st ${r.st}">${ST_LABEL[r.st]}</span><div class="kc-t">${esc(k.title(thOf(k)))}</div><div class="kc-v">${esc(r.text)}</div></div>`; }).join("")}</div>`;
-}
 function boxBlock(ph){
   const need = neededFields(), b = ph==="half" ? G().half : G().fin;
   let needed = 0, filled = 0;
@@ -1511,37 +1394,6 @@ function boxBlock(ph){
 function feed(items){
   return `<div class="card feed">${items.map(([tag,t,strong])=>`<div class="fi"><span class="ftag">${tag}</span><p>${strong?"<b>":""}${esc(t)}${strong?"</b>":""}</p></div>`).join("")}</div>`;
 }
-function renderHalf(){
-  const g = G();
-  document.getElementById("halfOut").innerHTML = `
-    ${pageHead("Halftime Report", `${esc(usA())} ${g.score.us}, ${esc(oppA())} ${g.score.opp}`)}
-    <h3>Your keys at the half</h3><div id="halfKeys"></div>
-    ${boxBlock("half")}
-    <div id="halfReport"></div>
-    <button class="btn pri block" style="margin:16px 0" onclick="startSecondHalf()">Start the second half</button>`;
-  renderHalfReport();
-}
-function renderHalfReport(){
-  const g = G(), el = document.getElementById("halfReport"); if(!el) return;
-  document.getElementById("halfKeys").innerHTML = keyCards("half");
-  const bf = boxVsFilm("half");
-  const adj = shiftLines(s=>s.q===1, s=>s.q===2, "first quarter", "second quarter");
-  const al = g.alerts.filter(a=>a.q<=2).slice(-3);
-  const items = [];
-  const real = t => !/^(Box score and charting agree|No big changes|Add total yards|Enter the box score)/.test(t);
-  bf.tell.filter(real).forEach(t=>items.push(["Box vs. film", t, true]));
-  bf.L.filter(real).forEach(t=>items.push(["Charting", t]));
-  adj.filter(real).forEach(t=>items.push(["Adjustment", t]));
-  al.forEach(a=>items.push(["Tendency Alert", a.text]));
-  const watch = [];
-  g.picked.map(id=>({k:KEY[id], r:keyState(KEY[id],"half")})).filter(x=>x.r.st==="off")
-    .forEach(x=>watch.push(`${x.k.title(thOf(x.k))} is off track (${x.r.text}).`));
-  const def = plays(s=>s.pos==="opp"&&s.q<=2), off = plays(s=>s.pos==="us"&&s.q<=2);
-  if(def.length >= off.length+10) watch.push("Your defense's snap count is the quiet tell for the third quarter.");
-  if(!watch.length) watch.push("Nothing flashing. Keep charting both sides so the second half has a baseline.");
-  el.innerHTML = `<h3>What the film says</h3>${items.length ? feed(items) : `<div class="card">${emptyState(glyphOff("11"), "Nothing to report yet", "Chart both sides and add the box score, and the first-half story shows up here.")}</div>`}
-    <h3>Watch in the third quarter</h3><div class="card callout">${watch.map(x=>`<p>${esc(x)}</p>`).join("")}</div>`;
-}
 function renderFinal(){
   const g = G();
   document.getElementById("finalOut").innerHTML = `
@@ -1551,30 +1403,6 @@ function renderFinal(){
     <div id="finalStory"></div>
     <div id="finalActions"></div>`;
   renderFinalReport();
-}
-function renderFinalReport(){
-  const g = G(), el = document.getElementById("finalReport"); if(!el) return;
-  const res = outcome(), d = decidingKey(), started = g.score.us || g.score.opp || g.snaps.length;
-  const tag = (ab, col) => `<span class="ab" style="background:${esc(col)};color:${inkOn(col)}">${esc(ab)}</span>`;
-  el.innerHTML = `
-    <div class="card scorehero">
-      <div class="t">${tag(usA(), g.usColors[0])}<b>${g.score.us}</b></div>
-      <div class="res ${started?res:""}">${!started ? "Final" : res==="W" ? "Win" : res==="L" ? "Loss" : "Tie"}</div>
-      <div class="t r"><b>${g.score.opp}</b>${tag(oppA(), g.oppColor)}</div>
-    </div>
-    <div class="card dk"><div class="eyebrow">Deciding Key</div>
-      ${d ? `<div class="circled">${markerLoop()}<b>${esc(KEY[d.id].title(thOf(KEY[d.id])))}</b></div><p class="hint" style="margin-top:8px">${d.mine?"It was one of your three.":"It wasn't in your three."} ${esc(keyState(KEY[d.id],"final").text)}.</p>`
-           : `<p class="hint">Once the score and your keys' numbers are in, the key that decided the game shows up here.</p>`}</div>
-    <h3>Your keys</h3>${keyCards("final")}`;
-  const items = [];
-  howLines().forEach(t=>items.push(["How it happened", t]));
-  shiftLines(s=>s.q<=2, s=>s.q>=3, "first half", "second half").filter(t=>!/^No big changes/.test(t)).forEach(t=>items.push(["Second half", t]));
-  document.getElementById("finalStory").innerHTML = `<h3>The story</h3>${items.length ? feed(items) : `<div class="card">${emptyState(glyphOff("21"), "No story yet", "Chart the game and the story writes itself here.")}</div>`}`;
-  document.getElementById("finalActions").innerHTML = `
-    <div class="row" style="margin:14px 0 8px"><button class="btn grow" onclick="showCard()">Postgame card</button>
-      <button class="btn pri grow" onclick="lockGame()">${g.locked?"Update Film Room":"Lock into Film Room"}</button></div>
-    ${g.locked ? `<p class="hint">Locked into the Film Room. Tip: Film Room, then Copy backup, keeps your book safe.</p><button class="btn block" style="margin-top:8px" onclick="newGame()">Start the next game</button>` : ""}
-    ${helpFooter()}`;
 }
 
 /* ---------- Film Room ---------- */
@@ -1607,58 +1435,6 @@ function ladderSVG(r){
     ${done ? `<path d="${done}" fill="none" stroke="var(--us)" stroke-width="5" stroke-linecap="round"/>` : ""}
     <path d="M${top.x-10} ${top.y-24} L${top.x} ${top.y-36} L${top.x+10} ${top.y-24}" fill="none" stroke="${r>=N?"var(--us)":"var(--line)"}" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
     ${nodes}</svg>`;
-}
-function renderFilm(){
-  const P = S.profile, r = rankNow(), R = rankReqs();
-  const next = r < RANKS.length ? R[r] : [];
-  const doneN = next.filter(q=>q.ok).length;
-  const games = S.season.filter(x=>FILMTIER==="All" || x.tier===FILMTIER);
-  const W = games.filter(x=>x.result==="W").length, L2 = games.filter(x=>x.result==="L").length;
-  const eyeN = S.season.filter(x=>x.deciding && x.picked && x.picked.length).length, eyeY = S.season.filter(x=>x.pickedDeciding).length;
-  const kt = KEYS.map(k=>({k, rec:keyRecord(k.id, FILMTIER==="All"?null:FILMTIER)})).filter(x=>x.rec.n).sort((a,b)=>b.rec.rate-a.rec.rate);
-  const agg = side => { const t={}; games.forEach(x=>{ const a = x.agg && x.agg[side]; if(!a) return;
-      for(const k in a){ const o=t[k]=t[k]||{n:0,run:0}; o.n+=a[k].n; o.run+=a[k].run; } }); return t; };
-  const tend = (side, list, who) => { const t = agg(side), tot = Object.values(t).reduce((s,o)=>s+o.n,0);
-    if(!tot) return emptyState(side==="off"?glyphOff("11"):glyphDef("Nickel"), side==="off"?"No offensive snaps yet":"No defensive snaps yet", "Lock a charted game and the mix shows up here.");
-    return `<div class="mix big">${list.map(k=>t[k]?`<i style="width:${t[k].n/tot*100}%;background:${MIXC[k]}"></i>`:"").join("")}</div>
-      <div class="legend">${list.filter(k=>t[k]).map(k=>`<div><i style="background:${MIXC[k]}"></i><b>${k}</b><span>${pct(t[k].n/tot)} of snaps, ${who} ${pct(t[k].run/t[k].n)}</span></div>`).join("")}</div>`; };
-  document.getElementById("filmOut").innerHTML = `
-    ${pageHead("Film Room", r ? `Rank: ${esc(RANKS[r-1].n)}` : "Unranked. Chart a full game to start the climb.")}
-    <div class="card ladder-card">
-      ${ladderSVG(r)}
-      ${r < RANKS.length ? `<div class="nextup"><div class="eyebrow">Next: ${esc(RANKS[r].n)}</div>
-        <div class="bar"><i style="width:${next.length?doneN/next.length*100:0}%"></i></div>
-        <ul class="reqs">${next.map(q=>`<li class="${q.ok?"ok":""}">${q.ok?"✓":"○"} ${esc(q.t)}</li>`).join("")}</ul>
-        <p class="hint">${esc(RANKS[r].adds)}.</p></div>` : `<p><b>Head Coach.</b> The top of the Staff.</p>`}
-      <label class="lab" for="pName">Your name for bylines</label>
-      <input class="f" id="pName" value="${esc(P.name)}" placeholder="Nate B." onchange="setName(this.value)">
-    </div>
-    <h3>Installs and walkthroughs</h3>
-    ${[["pers","Offensive personnel","Read 11, 10, 12 and 21 before the camera cuts.",glyphOff("12")],
-       ["pkg","Defensive packages","Count the DBs: 4 DB, Nickel, Dime, Goal line.",glyphDef("Nickel")],
-       ["tend","Reading a tendency","Base, deviation, and what a Tendency Alert means.",glyphOff("21")]].map(([id,t,d,svg])=>`
-      <div class="card inst"><div class="thumb">${svg}</div><div class="grow">
-        <div class="row"><b class="grow">${t}</b><span class="st ${P.install[id]?"won":"nodata"}">${P.install[id]?"✓ Installed":"Not yet"}</span></div>
-        <p class="hint" style="margin:2px 0 8px">${d}${id!=="tend" ? ` Best walkthrough: ${P.walk[id]} of 10.` : ""}</p>
-        <div class="row"><button class="btn grow" onclick="openInstall('${id}')">Install</button>${id!=="tend"?`<button class="btn grow" onclick="startWalk('${id}')">Walkthrough</button>`:""}</div>
-      </div></div>`).join("")}
-    <h3>Season</h3>
-    <div class="card">
-      <div class="seg">${["All",...TIERS].map(t=>`<button class="chip ${FILMTIER===t?"on":""}" onclick="setFilmTier('${t}')">${t}</button>`).join("")}</div>
-      ${games.length ? `<div class="recbig"><b>${W}–${L2}</b><span>${FILMTIER==="All"?"this season":"vs "+FILMTIER}</span></div>
-        ${eyeN ? `<p class="hint">Your three keys included the Deciding Key in ${eyeY} of ${eyeN} games.</p>` : ""}
-        ${games.slice().reverse().map(x=>`<div class="grow-row"><span class="wl ${x.result}">${x.result}</span><div><b>${x.score.us}–${x.score.opp} vs ${esc(x.opp)}</b><small>${esc(x.tier)}. ${esc(x.story||"")}</small></div></div>`).join("")}`
-        : emptyState(glyphOff("11"), "Your season starts here", "Lock a game from the Final screen and it lands in your book.")}
-    </div>
-    <h3>Key Tracker</h3>
-    <div class="card">${kt.length ? kt.map(x=>`<div class="ktr"><b>${esc(x.k.short)}</b><span class="pillw">Won it ${x.rec.wW}–${x.rec.wL}</span><span class="pilll">Lost it ${x.rec.lW}–${x.rec.lL}</span></div>`).join("")
-        + `<p class="hint" style="margin-top:8px">${esc(G().us)}'s record when winning or losing each key. Small samples: don't generalize from one game.</p>`
-      : emptyState(glyphDef("4 DB"), "No key records yet", "Every locked game grades every key, so you learn which ones really decide your games.")}</div>
-    <h3>Tendencies</h3>
-    <div class="card"><div class="eyebrow">${esc(G().us)} offense</div>${tend("off", OFF, "run")}</div>
-    <div class="card"><div class="eyebrow">Your defense</div>${tend("def", DEF, "they ran")}</div>
-    <div class="foot"><span>Your book lives on this device.</span><button class="link" onclick="copyBackup()">Copy backup</button><button class="link" onclick="restoreSheet()">Restore</button></div>
-    ${helpFooter()}`;
 }
 
 /* ================= Hosted data: season stats (CollegeFootballData.com) and live box scores (ESPN) ================= */
@@ -1814,36 +1590,506 @@ function espnBlock(ph){
 
 
 /* ---------- Welcome, how it works, feedback ---------- */
-const XO_VERSION = "v10, Sept 25";
+const XO_VERSION = "v11, Sept 25";
+function helpFooter(){
+  return `<div class="foot"><button class="link" onclick="welcome()">How it works</button><button class="link" onclick="sendFeedback()">Send feedback</button><span>${XO_VERSION}</span></div>`;
+}
+/* ================= v11: keys-first Scouting, snap fixes, A/B/C Halftime, Final math, coverage ================= */
+function tsel(side, f, opts, suf, sign, cls){
+  const T = G().tape[side] || {}, cur = T[f], val = cur==null ? "" : String(cur);
+  const label = side==="meta" ? "Through week" : (side==="us"?usA():oppA())+" "+f;
+  if(sign) return `<select class="tsel ${cls||""}" aria-label="${esc(label)}" onchange="setTape('${side}','${f}',this.value)"><option value="">–</option>${opts.map(o=>`<option value="${o}" ${o===val?"selected":""}>${+o>0?"+":""}${o}</option>`).join("")}</select>`;
+  const dec = opts[0].includes("."), lo = +opts[0], hi = +opts[opts.length-1];
+  return `<span class="tnum"><input class="tsel ${cls||""}" type="number" inputmode="${dec?"decimal":"numeric"}" min="${lo}" max="${hi}" step="${dec?0.1:1}" value="${esc(val)}" placeholder="–" aria-label="${esc(label)}" onchange="setTapeNum('${side}','${f}',this.value,${lo},${hi},${dec?1:0})">${suf && val ? `<i>${suf}</i>` : ""}</span>`;
+}
+function setTapeNum(side, f, v, lo, hi, dp){
+  const T = G().tape; if(!T[side]) T[side] = {};
+  if(v===""||isNaN(+v)) T[side][f] = ""; else { const n = Math.max(lo, Math.min(hi, +v)); T[side][f] = dp ? n.toFixed(1) : String(Math.round(n)); }
+  save(); renderScout();
+}
+
+/* ---------- Live ---------- */
+let THEIR_OPEN = false;
+function toggleTheir(){ THEIR_OPEN = !THEIR_OPEN; renderLive(); }
+function tapAct(code){
+  const g = G(), grp = g.grp[g.pos];
+  if(!grp){ g.caption = "Tap the "+(g.pos==="us"?"personnel":"package")+" first."; renderLive(); return; }
+  const prev = g.snaps[g.snaps.length-1];
+  const s = { pos:g.pos, grp, act:code, res:null, q:g.q, series:g.series, t:Date.now() };
+  if(g.theirPkg) s.vs = g.theirPkg;
+  if(g.pos==="us"){ if(g.tempo) s.tempo = g.tempo; if(g.motion) s.motion = true; }
+  g.snaps.push(s);
+  g.theirPkg = null; g.motion = false; g.awaitRes = true;
+  g.caption = captionFor(s);
+  checkAlerts();
+  if(prev && !prev.st && prev.pos===s.pos && prev.res==="TD")
+    g.caption = `<b>Still ${esc(s.pos==="us"?usN():oppN())} ball?</b> They just scored. If the other team has it now, tap Undo, then ${esc(s.pos==="us"?oppA():usA())} ball.`;
+  save(); renderLive();
+}
+function driveChip(){
+  const g = G(), team = g.pos==="us" ? usA() : oppA(), l = plays(s=>s.series===g.series && s.pos===g.pos);
+  if(!l.length) return `${esc(team)} drive: no snaps yet`;
+  const m = mode(l, s=>s.grp), runs = l.filter(s=>isRun(s.act)).length;
+  return `${esc(team)} drive: <b>${l.length}</b> play${l.length>1?"s":""}, mostly ${esc(m.k)}, ${runs} run${runs===1?"":"s"}`;
+}
+function liveTip(){
+  openSheet(`<div class="sheet-h"><h3>How to chart a snap</h3><button class="x" onclick="closeSheet()">Got it</button></div>
+    <div class="w-steps">
+      <div><i class="sn on">1</i><div><b>Before the snap: personnel</b><span>Count the backs and tight ends. The bold players in each picture are the ones to count. It stays selected until it changes.</span></div></div>
+      <div><i class="sn on">2</i><div><b>After the snap: the play</b><span>Run or pass, and where. This tap saves the snap.</span></div></div>
+      <div><i class="sn on">3</i><div><b>The result, if you caught it</b><span>Optional. It updates the snap you just saved.</span></div></div>
+      <div><i class="sn on">4</i><div><b>The ball flips itself</b><span>After punts, kicks, extra points and turnovers. Tap any snap in the log to fix it.</span></div></div>
+    </div>
+    <button class="btn pri block" onclick="closeSheet()">Got it</button>`);
+}
+function renderLive(){
+  const g = G(), rank = rankNow(), us = g.pos==="us";
+  if(!S.profile.liveTip){ S.profile.liveTip = true; save(); setTimeout(liveTip, 0); }
+  const lastAlert = g.alerts[g.alerts.length-1];
+  const showAlert = lastAlert && lastAlert.n===g.snaps.length && !g.caption;
+  const cap = showAlert ? `<div class="cap alert">${markerLoop()}<b>Tendency Alert.</b> ${esc(lastAlert.text)}</div>`
+                        : `<div class="cap">${g.caption || "Personnel before the snap, the play after it, then the result."}</div>`;
+  document.getElementById("liveTop").innerHTML = `
+    <div class="sb">
+      <button class="sbteam" onclick="scoreSheet('us')" aria-label="${esc(usN())} score"><span class="ab us">${esc(usA())}</span><span class="pts">${g.score.us}</span></button>
+      <div class="mid">${logoSVG("lv")}<select class="qsel" onchange="setQ(this.value)" aria-label="Quarter">${[1,2,3,4,5].map(n=>`<option value="${n}" ${g.q===n?"selected":""}>${n===5?"OT":"Q"+n}</option>`).join("")}</select></div>
+      <button class="sbteam r" onclick="scoreSheet('opp')" aria-label="${esc(oppN())} score"><span class="pts">${g.score.opp}</span><span class="ab opp">${esc(oppA())}</span></button>
+    </div>
+    <div class="poss">
+      <button class="us ${us?"on":""}" onclick="setPos('us')">${esc(usA())} ball</button>
+      <button class="opp ${!us?"on":""}" onclick="setPos('opp')">${esc(oppA())} ball</button>
+      <button class="tool" onclick="stSheet()" aria-label="Special teams">ST</button>
+      <button class="tool" onclick="undo()" aria-label="Undo the last entry">Undo</button>
+    </div>${cap}`;
+  const lp = lastPlay(), latest = g.snaps[g.snaps.length-1];
+  const awaiting = !!(g.awaitRes && lp && latest===lp && !lp.res);
+  const list = us ? OFF : DEF, sel = g.grp[g.pos];
+  const tiles = list.map(x=>`<button class="tile ${sel===x?"on":""}" onclick="tapGrp('${x}')" aria-pressed="${sel===x}">
+      ${us ? glyphOff(x) : glyphDef(x)}<span class="tt"><span class="nm">${x}</span><span class="sub">${us?OFF_SUB[x]:DEF_SUB[x]}</span></span></button>`).join("");
+  const their = (us ? DEF : OFF).map(x=>`<button class="mtile ${g.theirPkg===x?"on":""}" onclick="tapTheir('${x}')" aria-pressed="${g.theirPkg===x}">
+      ${us ? glyphDef(x,null,false,"var(--muted)") : glyphOff(x,null,false,"var(--muted)")}<b>${x}</b></button>`).join("");
+  const playBtns = ACTS.map(a=>`<button class="${isRun(a[0])?"run":"pass"}" onclick="tapAct('${a[0]}')"><small>${isRun(a[0])?"Run":"Pass"}</small>${PLAY_WORD[a[0]]}</button>`).join("");
+  const res = RESULTS.map(r=>{ const cls = (r==="TD"||r==="Turnover TD"?"wide ":"") + (r==="TD"?"td ":"") + (r==="Turnover"||r==="Turnover TD"?"bad ":"") + (lp&&lp.res===r?"on":"");
+    return `<button class="chip ${cls}" onclick="tapRes('${r}')">${RES_LABEL[r]}</button>`; }).join("");
+  let extras = "";
+  if(us && rank>=2) extras += `<div class="chips"><span class="k">Tempo</span>${["Huddle","No-huddle"].map(t=>`<button class="chip ${g.tempo===t?"on":""}" onclick="tapTempo('${t}')">${t}</button>`).join("")}<button class="chip ${g.motion?"on":""}" onclick="tapMotion()">Motion this snap</button></div>`;
+  if(!us && rank>=3) extras += `<div class="chips"><span class="k">Rushers, last snap</span>${["4","5+"].map(r=>`<button class="chip ${lp&&lp.pos==="opp"&&lp.rush===r?"on":""}" onclick="tapRush('${r}')">${r}</button>`).join("")}</div>`;
+  const off = plays(s=>s.pos==="us"), def = plays(s=>s.pos==="opp");
+  const strip = g.picked.map(id=>{ const k=KEY[id]; const r=keyState(k,"live"); const box=k.std;
+      return `<span class="kp ${box?"":r.st}">${k.short}: ${box?"scored at half":ST_LABEL[r.st].toLowerCase()}</span>`; }).join("");
+  const n0 = Math.max(0, g.snaps.length-10);
+  const log = g.snaps.slice(n0).map((s,j)=>({s,i:n0+j})).reverse().map(({s,i})=> s.st
+      ? `<button class="logrow" onclick="editSnap(${i})"><span class="tag">${s.pos==="us"?esc(usA()):esc(oppA())}</span><span class="grow">${s.st} (${s.q===5?"OT":"Q"+s.q})</span></button>`
+      : `<button class="logrow" onclick="editSnap(${i})"><span class="tag ${s.pos==="us"?"o":"d"}">${s.pos==="us"?esc(usA()):esc(oppA())}</span><span class="grow">${s.pos==="us"?s.grp+" personnel":"vs your "+s.grp}, ${ACT[s.act][2]}${s.res?", "+RES_LABEL[s.res]:""}${s.vs?" (they were in "+s.vs+")":""}</span><span class="ed">Fix</span></button>`).join("");
+  document.getElementById("livePad").innerHTML = `
+    <div class="step-lab"><span><i class="sn ${awaiting?"":"on"}">1</i>${us?`${esc(usN())} personnel`:"Your defensive package"}</span><span>before the snap</span></div>
+    <div class="tiles">${tiles}</div>
+    <div class="step-lab minor"><span>${us?"Their defense":"Their personnel"} <button class="fold" onclick="toggleTheir()">${THEIR_OPEN||g.theirPkg?"Hide":"Show"}</button></span><span>optional, this snap only</span></div>
+    <div class="mini-tiles ${THEIR_OPEN||g.theirPkg?"":"folded"}">${their}</div>
+    <div class="step-lab"><span><i class="sn">2</i>The play</span><span>after the snap, saves it</span></div>
+    <div class="plays">${playBtns}</div>
+    <div class="step-lab"><span><i class="sn ${awaiting?"on":""}">3</i>Result <button class="qm" onclick="resHelp()" aria-label="What the results mean">?</button></span><span>optional</span></div>
+    <div class="resgrid ${awaiting?"ready":""}">${res}</div>
+    ${extras}
+    <div class="stats"><span class="drive">${driveChip()}</span><span>Offense <b>${off.length}</b></span><span>Defense <b>${def.length}</b></span></div>
+    ${g.picked.length ? `<div class="strip">${strip}</div>` : ""}
+    <h3>Last snaps <span class="muted small" style="font-family:var(--body);font-weight:600">tap one to fix it</span></h3>
+    <div class="card log">${log || `<div class="hint">Nothing charted yet.</div>`}</div>
+    ${g.alerts.length ? `<h3>Tendency Alerts</h3><div class="card lines">${g.alerts.slice().reverse().map(a=>`<p>${esc(a.text)} <span class="muted small">(${a.q===5?"OT":"Q"+a.q})</span></p>`).join("")}</div>` : ""}`;
+}
+const AUTO_RES = ["TD","Turnover","Turnover TD"];
+function editSnap(i){
+  const g = G(), s = g.snaps[i]; if(!s) return;
+  const latest = i===g.snaps.length-1, team = s.pos==="us" ? usN() : oppN();
+  if(s.st){
+    openSheet(`<div class="sheet-h"><h3>${esc(s.st)}, ${esc(team)}</h3><button class="x" onclick="closeSheet()">Done</button></div>
+      ${latest ? `<button class="btn block" onclick="undo();closeSheet()">Undo it</button>` : `<p class="hint">Special teams entries can be undone only while they're the latest entry.</p>`}`);
+    return;
+  }
+  const list = s.pos==="us" ? OFF : DEF, auto = AUTO_RES.includes(s.res);
+  const resOpts = ["","4+","Stuffed","Explosive"].concat(latest ? AUTO_RES : []);
+  openSheet(`<div class="sheet-h"><h3>Fix this snap</h3><button class="x" onclick="closeSheet()">Done</button></div>
+    <p class="hint">${esc(team)}, ${s.q===5?"OT":"Q"+s.q}. Changes save as you tap.</p>
+    <span class="lab">${s.pos==="us"?"Personnel":"Your package"}</span>
+    <div class="grid4">${list.map(x=>`<button class="chip ${s.grp===x?"on":""}" onclick="fixSnap(${i},'grp','${x}')">${x}</button>`).join("")}</div>
+    <span class="lab">The play</span>
+    <div class="grid3">${ACTS.map(a=>`<button class="chip ${s.act===a[0]?"on":""}" onclick="fixSnap(${i},'act','${a[0]}')">${a[1]}</button>`).join("")}</div>
+    <span class="lab">Result</span>
+    ${auto && !latest ? `<p class="hint">This snap changed the score or possession, so its result can change only while it's the latest snap.</p>`
+      : `<div class="grid3">${resOpts.map(r=>`<button class="chip ${(s.res||"")===r?"on":""}" onclick="fixSnap(${i},'res','${r}')">${r?RES_LABEL[r]:"None"}</button>`).join("")}</div>`}
+    ${!auto || latest ? `<button class="btn block" style="margin-top:14px" onclick="deleteSnap(${i})">Delete this snap</button>` : ""}`);
+}
+function fixSnap(i, f, v){
+  const g = G(), s = g.snaps[i]; if(!s) return;
+  const latest = i===g.snaps.length-1;
+  if(f==="res"){
+    if(!latest && (AUTO_RES.includes(v) || AUTO_RES.includes(s.res))) return;
+    reverseAuto(s); s.res = v || null;
+    if(latest && s.res) applyResAuto(s); else s.auto = null;
+  } else s[f] = v;
+  save(); renderLive(); editSnap(i);
+}
+function deleteSnap(i){
+  const g = G(), s = g.snaps[i]; if(!s) return;
+  if(i===g.snaps.length-1){ undo(); closeSheet(); return; }
+  if(AUTO_RES.includes(s.res)) return;
+  g.snaps.splice(i,1); save(); closeSheet(); renderLive();
+}
+
+/* ---------- Scouting: keys first ---------- */
+function applySuggested(){ const g = G(); g.picked = suggestKeys(); g.keysSuggested = true; g.keysTouched = false; save(); if(S.tab==="scout") renderScout(); }
+const tierGroup = t => (t==="Top 10"||t==="Top 25") ? "ranked" : t==="Power Four" ? "p4" : "low";
+function classWall(){
+  const last = S.season.filter(x=>x.id!==G().id && !x.partial).slice(-1)[0];
+  if(!last || tierGroup(last.tier)===tierGroup(G().tier)) return "";
+  return `<div class="banner"><b>Different class of opponent.</b> Your last game was against ${esc(last.opp)}, a ${esc(last.tier)} team. This one is ${esc(G().tier)}. Don't copy that plan.</div>`;
+}
+function renderScout(){
+  const g = G();
+  if(g.opp && !g.keysTouched && (!g.picked.length || g.keysSuggested)){ const s = suggestKeys(); if(s.join()!==g.picked.join()){ g.picked = s; g.keysSuggested = true; save(); } }
+  const teamOpts = TEAMS.map((t,i)=>`<option value="${i}">${esc(t[0])}</option>`).join("");
+  const picks = `<div class="row" style="gap:12px;flex-wrap:wrap">${[0,1,2].map(i=>`<label class="cpick"><input type="color" value="${esc(g.usColors[i])}" aria-label="${["Primary","Secondary","Third"][i]} color" onchange="setUsColor(${i},this.value)"><span>${["Primary","Secondary","Third"][i]}</span></label>`).join("")}
+    <label class="cpick"><input type="color" value="${esc(g.oppColor)}" aria-label="Opponent color" onchange="setColor('oppColor',this.value)"><span>${esc(oppA())}</span></label></div>`;
+  const byRate = ids => ids.slice().sort((a,b)=>{ const ra=keyRecord(a), rb=keyRecord(b); return (rb.n>=2?rb.rate:-1)-(ra.n>=2?ra.rate:-1); });
+  const slots = [0,1,2].map(i=>{ const id = g.picked[i];
+    if(!id) return `<div class="slot empty"><i class="sn">${i+1}</i><span>Open a category below and pick a key</span></div>`;
+    const k = KEY[id];
+    return `<button class="slot" onclick="togglePick('${id}')" aria-label="Remove this key"><i class="sn on">${i+1}</i><span class="grow">${esc(k.title(thOf(k)))}</span><span class="rm">×</span></button>`; }).join("");
+  const cats = KEY_CATS.map(c=>{
+    const open = OPEN_CAT===c.id, n = c.keys.filter(id=>g.picked.includes(id)).length;
+    return `<div class="cat ${open?"open":""}"><button class="cat-h" onclick="toggleCat('${c.id}')" aria-expanded="${open}">
+        <span class="grow"><b>${c.n}</b><small>${c.d}</small></span>${n?`<i class="pill">${n} picked</i>`:""}<i class="chev" aria-hidden="true">${open?"−":"+"}</i></button>
+        ${open ? `<div class="cat-b">${byRate(c.keys).map(keyCard).join("")}</div>` : ""}</div>`;
+  }).join("");
+  const suggested = g.keysSuggested && !g.keysTouched && g.picked.length;
+  document.getElementById("scoutOut").innerHTML = `
+    ${pageHead("Scouting Report", g.opp ? `${esc(usN())} vs ${esc(oppN())}. Listed ${g.role==="Pick'em"?"pick'em":g.role.toLowerCase()}, ${esc(g.tier)} opponent.` : "Pick this week's opponent to start.")}
+    ${classWall()}
+    <div class="card">
+      <div class="grid2">
+        <div style="grid-column:1/3"><label class="lab" for="qOpp" style="margin-top:0">This week's opponent</label><select class="f" id="qOpp" onchange="pickTeam('opp',this.value)"><option value="">${g.opp?esc(g.opp):"Choose…"}</option>${teamOpts}</select></div>
+        <div><label class="lab" for="fRole">${esc(usN())} is listed as</label><select class="f" id="fRole" onchange="setSel('role',this.value)">${ROLES.map(r=>`<option ${g.role===r?"selected":""}>${r}</option>`).join("")}</select></div>
+        <div><label class="lab" for="fTier">Opponent tier</label><select class="f" id="fTier" onchange="setSel('tier',this.value)">${TIERS.map(r=>`<option ${g.tier===r?"selected":""}>${r}</option>`).join("")}</select></div>
+      </div>
+    </div>
+    <h3>Keys to the Game</h3>
+    <p class="hint" style="margin-top:-2px">${suggested ? esc(suggestWhy()) : "Your three keys. Halftime and the Final grade these."}</p>
+    <div class="three">${slots}</div>
+    ${!suggested && g.opp ? `<button class="btn block" style="margin:6px 0 4px" onclick="applySuggested()">Use suggested keys</button>` : ""}
+    ${topThree().length===3 && g.picked.length<3 ? `<button class="btn block" style="margin:6px 0 4px" onclick="useTopThree()">Use the top three from my book</button>` : ""}
+    <div class="cats">${cats}</div>
+    <button class="btn pri block" style="margin:16px 0 4px" onclick="go('live')">Go to Live</button>
+    <h3>Tale of the Tape</h3>
+    <div class="card">${tapeHTML()}</div>
+    ${tendHTML()}
+    <details class="card boxd"><summary><b>Teams and colors</b><span class="bstat">${esc(usA())} vs ${esc(oppA())}</span></summary>
+      <div class="grid2" style="margin-top:8px">
+        <div style="grid-column:1/3"><label class="lab" for="qUs">Your team</label><select class="f" id="qUs" onchange="pickTeam('us',this.value)"><option value="">${esc(g.us)}</option>${teamOpts}</select></div>
+        <div><label class="lab" for="fUs">Your team's name</label><input class="f" id="fUs" value="${esc(g.us)}" onchange="setField('us',this.value);renderScout()"></div>
+        <div><label class="lab" for="fUsA">Short name</label><input class="f" id="fUsA" value="${esc(g.usAb)}" onchange="setAb('usAb',this.value);renderScout()"></div>
+        <div><label class="lab" for="fOpp">Opponent's name</label><input class="f" id="fOpp" value="${esc(g.opp)}" placeholder="Texas" onchange="setField('opp',this.value);renderScout()"></div>
+        <div><label class="lab" for="fOppA">Short name</label><input class="f" id="fOppA" value="${esc(g.oppAb)}" placeholder="TEX" onchange="setAb('oppAb',this.value);renderScout()"></div>
+        <div style="grid-column:1/3"><span class="lab">${esc(usN())} colors run the app. The ${esc(oppA())} color marks their side.</span>${picks}</div>
+      </div>
+    </details>
+    <button class="btn block" style="margin-top:10px" onclick="newGame()">Start a new game</button>
+    ${helpFooter()}`;
+}
+
+/* ---------- Halftime: A keys, B box vs film, C third-quarter tells ---------- */
+const HALF_LABEL = {on:"✓ Winning it", off:"✗ Losing it", close:"~ Too close", nodata:"Not punched in"};
+function keyCards(ph){
+  const g = G();
+  if(!g.picked.length){
+    if(ph==="half") return `<div class="card nokeys"><b>Pick your keys now</b><p>Without keys, halftime can describe the game but can't grade it.</p>
+      <button class="btn pri block" onclick="applySuggested();renderHalf()">Use suggested keys</button>
+      <button class="btn block" style="margin-top:8px" onclick="go('scout')">Choose my own</button></div>`;
+    return `<div class="card">${emptyState(glyphOff("11"), "No keys picked", "Pick three in the Scouting Report and they're graded here.")}</div>`;
+  }
+  const L = ph==="half" ? HALF_LABEL : ST_LABEL;
+  return `<div class="kcards">${g.picked.map(id=>{ const k=KEY[id], r=keyState(k,ph);
+    return `<div class="kcard ${r.st}"><span class="st ${r.st}">${L[r.st]}</span><div class="kc-t">${esc(k.title(thOf(k)))}</div><div class="kc-v">${esc(r.text)}</div></div>`; }).join("")}</div>`;
+}
+function collision(){
+  const c = ctx("half"), g = G(), u = f=>bv(c.box,"us",f), o = f=>bv(c.box,"opp",f);
+  const rr = runRate(c.off), top = c.off.length ? mode(c.off,s=>s.grp).k : null;
+  const ra = u("rushAtt"), ry = u("rushYds"), oa = o("rushAtt"), oy = o("rushYds"), uy = u("yds"), oyd = o("yds");
+  if(ra && ry!=null && c.off.length>=6){
+    const ypc = ry/ra;
+    if(ypc>=5 && rr<0.45) return `Box says ${usN()} runs for ${ypc.toFixed(1)} a carry, but you charted runs on only ${pct(rr)} of snaps. The run game works and they're not leaning on it.`;
+    if(ypc>=4.5 && rr>=0.55) return `Box says ${ry} rushing yards at ${ypc.toFixed(1)} a carry, and you charted runs on ${pct(rr)}, mostly from ${top}. The yards are the plan, not a surprise.`;
+    if(ypc<3.5 && rr>=0.55) return `You charted runs on ${pct(rr)}, but the box says ${ypc.toFixed(1)} a carry. ${usN()} keeps running into a wall.`;
+  }
+  if(oa && oy!=null && c.def.length>=6){
+    const ypc = oy/oa, light = c.def.filter(s=>s.grp==="Nickel"||s.grp==="Dime").length/c.def.length;
+    if(ypc>=5 && light>=0.6) return `Box says ${oppN()} runs for ${ypc.toFixed(1)} a carry, and your defense spent ${pct(light)} of snaps in Nickel or Dime. They're running at the light box.`;
+    if(ypc>=5) return `Box says ${oppN()} runs for ${ypc.toFixed(1)} a carry against you. Run defense is the story of the half.`;
+  }
+  if(uy!=null && oyd!=null && uy>=oyd+50 && g.score.us<=g.score.opp) return `Box says ${usN()} outgained them by ${uy-oyd} yards and still isn't ahead. Look at turnovers and the red zone.`;
+  if(uy==null && ra==null) return "Punch in the halftime box score and this compares the stat sheet with your film.";
+  if(c.off.length<6 && c.def.length<6) return "Not enough charted snaps yet to hold your film up against the box score.";
+  return "The box score and your charting tell the same story so far.";
+}
+function q3Tells(){
+  const c = ctx("half"), g = G(), out = [];
+  if(c.off.length<8 || c.def.length<8){
+    if(!c.def.length) out.push(`You've charted 0 defensive snaps. The third-quarter read needs both sides, so chart ${oppN()} after the break.`);
+    else if(!c.off.length) out.push(`You've charted 0 offensive snaps. Chart ${usN()} after the break.`);
+    else out.push(`Not enough film for a third-quarter read yet: ${c.off.length} offensive and ${c.def.length} defensive snaps. It needs 8 of each.`);
+    return out;
+  }
+  const bad = g.picked.map(id=>({k:KEY[id], r:keyState(KEY[id],"half")})).find(x=>x.r.st==="off");
+  if(bad) out.push(`The key to flip: ${bad.k.title(thOf(bad.k))}. Right now: ${bad.r.text}.`);
+  const cnt = countBy(c.off,s=>s.grp), m = mode(c.off,s=>s.grp), share = m.n/c.off.length;
+  if(share>=0.6){ const alt = OFF.find(x=>x!==m.k && !cnt[x]) || OFF.find(x=>x!==m.k); out.push(`${usN()} lived in ${m.k} (${pct(share)}). If ${alt} shows up after halftime, that's the adjustment.`); }
+  const orr = runRate(c.def);
+  if(orr>=0.6) out.push(`${oppN()} ran on ${pct(orr)} of snaps. A pass-heavy opening drive means they changed the plan.`);
+  else if(orr<=0.4) out.push(`${oppN()} threw on ${pct(1-orr)} of snaps. If they start running, they're protecting a lead or found something.`);
+  const dm = mode(c.def,s=>s.grp);
+  if(out.length<2 && dm) out.push(`Your defense lived in ${dm.k} (${pct(dm.n/c.def.length)}). Watch for a package change on their first series.`);
+  return out.slice(0,2);
+}
+function renderHalf(){
+  const g = G();
+  document.getElementById("halfOut").innerHTML = `
+    ${pageHead("Halftime Report", `${esc(usA())} ${g.score.us}, ${esc(oppA())} ${g.score.opp}`)}
+    <h3>A. Your keys</h3><div id="halfKeys"></div>
+    ${boxBlock("half")}
+    <div id="halfReport"></div>
+    <button class="btn pri block" style="margin:16px 0 8px" onclick="startSecondHalf()">Start the second half</button>
+    <button class="btn block" onclick="lockGame(true);renderHalf()">${g.halfLocked?"First half saved. Save it again":"Save the first half to your book"}</button>`;
+  renderHalfReport();
+}
+function renderHalfReport(){
+  const g = G(), el = document.getElementById("halfReport"); if(!el) return;
+  document.getElementById("halfKeys").innerHTML = keyCards("half");
+  const al = g.alerts.filter(a=>a.q<=2).slice(-3);
+  el.innerHTML = `
+    <h3>B. Box score vs. your film</h3><div class="card collide"><p>${esc(collision())}</p></div>
+    <h3>C. Watch in the third quarter</h3><div class="card callout">${q3Tells().map(x=>`<p>${esc(x)}</p>`).join("")}</div>
+    ${al.length ? `<h3>Tendency Alerts this half</h3><div class="card lines">${al.map(a=>`<p>${esc(a.text)}</p>`).join("")}</div>` : ""}`;
+}
+
+/* ---------- Final ---------- */
+function coverage(){
+  const g = G(), hit = new Set(); plays().forEach(s=>hit.add(s.series));
+  const total = Math.max(g.series, hit.size);
+  return {n:hit.size, total, pct: total ? hit.size/total : 0};
+}
+function decidingKey(){
+  const res = outcome(); if(res==="T") return null;
+  const c = ctx("final");
+  const cand = ids => ids.map(id=>{ const raw = KEY[id].ev(c, thOf(KEY[id])); return raw && !raw.close && raw.pass===(res==="W") ? {id, gap:raw.gap||0, raw} : null; })
+                         .filter(Boolean).sort((a,b)=>b.gap-a.gap);
+  const mine = cand(G().picked); if(mine.length) return {id:mine[0].id, mine:true, raw:mine[0].raw};
+  const all = cand(KEYS.map(k=>k.id)); return all.length ? {id:all[0].id, mine:false, raw:all[0].raw} : null;
+}
+function story3(){
+  const off = plays(s=>s.pos==="us"), def = plays(s=>s.pos==="opp"), out = [];
+  if(off.length){ const m = mode(off,s=>s.grp); out.push(`${usN()} lived in ${m.k} (${pct(m.n/off.length)}) and ran on ${pct(runRate(off))}.`); }
+  else if(def.length) out.push(`${oppN()} ran on ${pct(runRate(def))} of snaps.`);
+  const sh = shiftLines(s=>s.q<=2, s=>s.q>=3, "first half", "second half").filter(t=>!/^No big changes/.test(t));
+  out.push(sh.length ? sh[0] : "No real change after halftime in what you charted.");
+  const d = decidingKey(); if(d) out.push(`${KEY[d.id].short} decided it: ${d.raw.text}.`);
+  return out.slice(0,3);
+}
+function renderFinalReport(){
+  const g = G(), el = document.getElementById("finalReport"); if(!el) return;
+  const res = outcome(), d = decidingKey(), started = g.score.us || g.score.opp || g.snaps.length, cov = coverage();
+  const tag = (ab, col) => `<span class="ab" style="background:${esc(col)};color:${inkOn(col)}">${esc(ab)}</span>`;
+  el.innerHTML = `
+    <div class="card scorehero">
+      <div class="t">${tag(usA(), g.usColors[0])}<b>${g.score.us}</b></div>
+      <div class="res ${started?res:""}">${!started ? "Final" : res==="W" ? "Win" : res==="L" ? "Loss" : "Tie"}</div>
+      <div class="t r"><b>${g.score.opp}</b>${tag(oppA(), g.oppColor)}</div>
+    </div>
+    ${plays().length ? `<p class="hint" style="text-align:center;margin:-2px 0 8px">You charted ${cov.n} of ${cov.total} possessions (${pct(cov.pct)}).</p>` : ""}
+    <div class="card dk"><div class="eyebrow">Deciding Key</div>
+      ${d ? `<div class="circled">${markerLoop()}<b>${esc(KEY[d.id].title(thOf(KEY[d.id])))}</b></div>
+             <p class="math">Happened: ${esc(d.raw.text)}.</p><p class="hint">${d.mine?"It was one of your three.":"It wasn't in your three."} It missed or beat its line by the widest margin, in the direction of the final score.</p>`
+           : `<p class="hint">Once the final score and your keys' numbers are in, the key that decided the game shows up here with the math.</p>`}</div>
+    <h3>Your keys</h3>${keyCards("final")}`;
+  const items = [];
+  howLines().forEach(t=>items.push(["How it happened", t]));
+  shiftLines(s=>s.q<=2, s=>s.q>=3, "first half", "second half").filter(t=>!/^No big changes/.test(t)).forEach(t=>items.push(["Second half", t]));
+  const st = plays().length ? story3() : [];
+  document.getElementById("finalStory").innerHTML = `<h3>The story</h3>
+    ${st.length ? `<div class="card storyp">${st.map(x=>`<p>${esc(x)}</p>`).join("")}</div>` : `<div class="card">${emptyState(glyphOff("21"), "No story yet", "Chart the game and the story writes itself here.")}</div>`}
+    ${items.length ? `<details class="card boxd"><summary><b>Full breakdown</b><span class="bstat">${items.length} notes</span></summary><div style="margin-top:6px">${items.map(([t,x])=>`<div class="fi"><span class="ftag">${t}</span><p>${esc(x)}</p></div>`).join("")}</div></details>` : ""}`;
+  document.getElementById("finalActions").innerHTML = `
+    <div class="row" style="margin:14px 0 8px"><button class="btn grow" onclick="showCard()">Postgame card</button>
+      <button class="btn pri grow" onclick="lockGame()">${g.locked?"Update Film Room":g.halfLocked?"Save the full game":"Lock into Film Room"}</button></div>
+    ${g.locked ? `<p class="hint">Locked into the Film Room. Back up your book from the Film Room to keep it safe.</p><button class="btn block" style="margin-top:8px" onclick="newGame()">Start the next game</button>` : ""}
+    ${helpFooter()}`;
+}
+function aggOf(list){ const a = {}; list.forEach(s=>{ const o = a[s.grp] = a[s.grp]||{n:0,run:0,exp:0}; o.n++; if(isRun(s.act)) o.run++; if(s.res==="Explosive") o.exp++; }); return a; }
+function lockGame(partial){
+  const g = G(), off = plays(s=>s.pos==="us"), def = plays(s=>s.pos==="opp");
+  if(!g.opp){ alert("Pick the opponent in the Scouting Report first."); return; }
+  const keyResults = {}; if(!partial) KEYS.forEach(k=>{ const r = keyState(k,"final"); if(r.st!=="nodata") keyResults[k.id] = r.st; });
+  const d = partial ? null : decidingKey(), cov = coverage();
+  const row = { id:g.id, us:g.us, opp:g.opp, role:g.role, tier:g.tier, score:{...g.score}, result: partial ? "H" : outcome(), partial:!!partial,
+    snaps:off.length+def.length, offN:off.length, defN:def.length, agg:{off:aggOf(off), def:aggOf(def)}, keyResults, picked:g.picked.slice(),
+    deciding:d?d.id:null, pickedDeciding:!!(d&&d.mine), cov:{n:cov.n,total:cov.total},
+    story: partial ? `First half: ${usN()} ${g.score.us}, ${oppN()} ${g.score.opp}.` : story(), when:Date.now() };
+  const i = S.season.findIndex(x=>x.id===g.id);
+  if(i>=0) S.season[i] = row; else S.season.push(row);
+  if(partial) g.halfLocked = true; else g.locked = true;
+  save(); if(!partial) renderFinalReport();
+}
+function showCard(){
+  const g = G(), d = decidingKey(), off = plays(s=>s.pos==="us"), cnt = countBy(off,s=>s.grp), cov = coverage();
+  const mix = off.length ? `<div class="pc-mix">${OFF.filter(k=>cnt[k]).map(k=>`<i style="width:${cnt[k]/off.length*100}%;background:${MIXC[k]}"></i>`).join("")}</div>
+      <div class="pc-leg">${OFF.filter(k=>cnt[k]).map(k=>`<span><i style="background:${MIXC[k]}"></i>${k} ${pct(cnt[k]/off.length)}</span>`).join("")}</div>` : "";
+  const el = document.getElementById("card");
+  el.innerHTML = `<div class="row" style="max-width:460px;margin:0 auto"><span class="grow hint">Screenshot this card for the group chat.</span><button class="x" onclick="hideCard()">Close</button></div>
+    <div class="pc">
+      <div class="top">${logoSVG("c")}<div class="hd">Final. ${esc(g.role==="Pick'em"?"Pick'em":"Listed "+g.role.toLowerCase())}, ${esc(g.tier)} opponent</div></div>
+      <div class="sc"><span class="t"><span class="ab" style="background:${esc(g.usColors[0])};color:${inkOn(g.usColors[0])}">${esc(usA())}</span>${g.score.us}</span><span class="t">${g.score.opp}<span class="ab" style="background:${esc(g.oppColor)};color:${inkOn(g.oppColor)}">${esc(oppA())}</span></span></div>
+      <div class="story">${esc(story())}</div>
+      ${mix}
+      ${g.picked.map(id=>{ const k=KEY[id], r=keyState(k,"final"); return `<div class="kl"><span>${esc(k.title(thOf(k)))}</span><span class="st ${r.st}">${ST_LABEL[r.st]}</span></div>`; }).join("")}
+      ${d ? `<div class="kl"><span><b>Deciding Key</b></span><span>${esc(KEY[d.id].short)}</span></div>` : ""}
+      <div class="by">Charted on xO Football${S.profile.name ? " by "+esc(S.profile.name) : ""}. ${plays().length} snaps, ${cov.n} of ${cov.total} possessions.</div>
+    </div>`;
+  el.classList.add("on");
+}
+
+/* ---------- Film Room ---------- */
+function renderFilm(){
+  const P = S.profile, r = rankNow(), R = rankReqs(), g0 = G();
+  const next = r < RANKS.length ? R[r] : [];
+  const doneN = next.filter(q=>q.ok).length;
+  const games = S.season.filter(x=>FILMTIER==="All" || x.tier===FILMTIER);
+  const W = games.filter(x=>x.result==="W").length, L2 = games.filter(x=>x.result==="L").length;
+  const eyeN = S.season.filter(x=>x.deciding && x.picked && x.picked.length).length, eyeY = S.season.filter(x=>x.pickedDeciding).length;
+  const kt = KEYS.map(k=>({k, rec:keyRecord(k.id, FILMTIER==="All"?null:FILMTIER)})).filter(x=>x.rec.n).sort((a,b)=>b.rec.rate-a.rec.rate);
+  const live = !g0.locked && plays().length && (FILMTIER==="All" || g0.tier===FILMTIER) && !S.season.some(x=>x.id===g0.id);
+  const agg = side => { const t = {}; const add = a => { for(const k in a){ const o=t[k]=t[k]||{n:0,run:0}; o.n+=a[k].n; o.run+=a[k].run; } };
+      games.forEach(x=>{ if(x.agg && x.agg[side]) add(x.agg[side]); });
+      if(live) add(aggOf(plays(s=>s.pos===(side==="off"?"us":"opp"))));
+      return t; };
+  const tend = (side, list, who) => { const t = agg(side), tot = Object.values(t).reduce((s,o)=>s+o.n,0);
+    if(!tot) return emptyState(side==="off"?glyphOff("11"):glyphDef("Nickel"), side==="off"?"No offensive snaps yet":"No defensive snaps yet", "Chart a game and the mix shows up here, even before you lock it.");
+    return `<div class="mix big">${list.map(k=>t[k]?`<i style="width:${t[k].n/tot*100}%;background:${MIXC[k]}"></i>`:"").join("")}</div>
+      <div class="legend">${list.filter(k=>t[k]).map(k=>`<div><i style="background:${MIXC[k]}"></i><b>${k}</b><span>${pct(t[k].n/tot)} of snaps, ${who} ${pct(t[k].run/t[k].n)}</span></div>`).join("")}</div>`; };
+  document.getElementById("filmOut").innerHTML = `
+    ${pageHead("Film Room", r ? `Rank: ${esc(RANKS[r-1].n)}` : "Unranked. Chart a full game to start the climb.")}
+    <div class="card ladder-card">
+      ${ladderSVG(r)}
+      ${r < RANKS.length ? `<div class="nextup"><div class="eyebrow">Next: ${esc(RANKS[r].n)}</div>
+        <div class="bar"><i style="width:${next.length?doneN/next.length*100:0}%"></i></div>
+        <ul class="reqs">${next.map(q=>`<li class="${q.ok?"ok":""}">${q.ok?"✓":"○"} ${esc(q.t)}</li>`).join("")}</ul>
+        <p class="hint">${esc(RANKS[r].adds)}.</p></div>` : `<p><b>Head Coach.</b> The top of the Staff.</p>`}
+      <label class="lab" for="pName">Your name for bylines</label>
+      <input class="f" id="pName" value="${esc(P.name)}" placeholder="Nate B." onchange="setName(this.value)">
+    </div>
+    <h3>Installs and walkthroughs</h3>
+    ${[["pers","Offensive personnel","Read 11, 10, 12 and 21 before the camera cuts.",glyphOff("12")],
+       ["pkg","Defensive packages","Count the DBs: 4 DB, Nickel, Dime, Goal line.",glyphDef("Nickel")],
+       ["tend","Reading a tendency","Base, deviation, and what a Tendency Alert means.",glyphOff("21")]].map(([id,t,d,svg])=>`
+      <div class="card inst"><div class="thumb">${svg}</div><div class="grow">
+        <div class="row"><b class="grow">${t}</b><span class="st ${P.install[id]?"won":"nodata"}">${P.install[id]?"✓ Installed":"Not yet"}</span></div>
+        <p class="hint" style="margin:2px 0 8px">${d}${id!=="tend" && P.walk[id] ? ` Best walkthrough: ${P.walk[id]} of 10.` : ""}</p>
+        <div class="row"><button class="btn grow" onclick="openInstall('${id}')">Install</button>${id!=="tend"?`<button class="btn grow" onclick="startWalk('${id}')">Walkthrough</button>`:""}</div>
+      </div></div>`).join("")}
+    <h3>Season</h3>
+    <div class="card">
+      <div class="seg">${["All",...TIERS].map(t=>`<button class="chip ${FILMTIER===t?"on":""}" onclick="setFilmTier('${t}')">${t}</button>`).join("")}</div>
+      ${games.length ? `<div class="recbig"><b>${W}–${L2}</b><span>${FILMTIER==="All"?"this season":"vs "+FILMTIER}</span></div>
+        ${eyeN ? `<p class="hint">Your three keys included the Deciding Key in ${eyeY} of ${eyeN} games.</p>` : ""}
+        ${games.slice().reverse().map(x=>`<div class="grow-row"><span class="wl ${x.result}">${x.result==="H"?"½":x.result}</span><div><b>${x.score.us}–${x.score.opp} vs ${esc(x.opp)}${x.partial?" (first half)":""}</b><small>${esc(x.tier)}. ${esc(x.story||"")}${x.cov?` Charted ${x.cov.n} of ${x.cov.total} possessions.`:""}</small></div></div>`).join("")}`
+        : emptyState(glyphOff("11"), "Your season starts here", "Save a first half at halftime or lock the game from the Final, and it lands in your book.")}
+    </div>
+    <h3>Key Tracker</h3>
+    <div class="card">${kt.length ? kt.map(x=>`<div class="ktr"><b>${esc(x.k.short)}</b><span class="pillw">Won it ${x.rec.wW}–${x.rec.wL}</span><span class="pilll">Lost it ${x.rec.lW}–${x.rec.lL}</span></div>`).join("")
+        + `<p class="hint" style="margin-top:8px">${esc(G().us)}'s record when winning or losing each key. Small samples: don't generalize from one game.</p>`
+      : emptyState(glyphDef("4 DB"), "No key records yet", "Every locked game grades every key, so you learn which ones really decide your games.")}</div>
+    <h3>Tendencies</h3>
+    ${live ? `<p class="hint" style="margin-top:-2px">Includes this game, not locked yet.</p>` : ""}
+    <div class="card"><div class="eyebrow">${esc(G().us)} offense</div>${tend("off", OFF, "run")}</div>
+    <div class="card"><div class="eyebrow">Your defense</div>${tend("def", DEF, "they ran")}</div>
+    <div class="foot"><span>Your book lives on this device.</span><button class="link" onclick="copyBackup()">Back up my book</button><button class="link" onclick="restoreSheet()">Restore</button></div>
+    ${helpFooter()}`;
+}
+
+/* ---------- Backup and restore ---------- */
+function backupName(){ const d = new Date(); return `xo-${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,"0")}-${String(d.getDate()).padStart(2,"0")}.json`; }
+async function copyBackup(){
+  const txt = JSON.stringify(S), name = backupName();
+  try{
+    const file = new File([txt], name, {type:"application/json"});
+    if(navigator.canShare && navigator.canShare({files:[file]})){ await navigator.share({files:[file], title:"xO Football backup"}); return; }
+  }catch(e){ if(e && e.name==="AbortError") return; }
+  if(HOSTED){ const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([txt],{type:"application/json"})); a.download = name; document.body.appendChild(a); a.click(); a.remove(); return; }
+  if(navigator.clipboard) navigator.clipboard.writeText(txt).then(()=>alert("Backup copied. Paste it somewhere safe, like a note.")).catch(()=>showBackup(txt)); else showBackup(txt);
+}
+function showBackup(txt){
+  openSheet(`<div class="sheet-h"><h3>Backup</h3><button class="x" onclick="closeSheet()">Close</button></div><p class="hint">Select all and copy.</p><textarea class="f" style="min-height:200px">${esc(txt)}</textarea>`);
+}
+let PENDING = null;
+function restoreSheet(){
+  PENDING = null;
+  openSheet(`<div class="sheet-h"><h3>Restore</h3><button class="x" onclick="closeSheet()">Close</button></div>
+    <label class="lab" for="rFile" style="margin-top:0">Pick a backup file</label>
+    <input class="f" id="rFile" type="file" accept=".json,application/json" onchange="restoreFile(this)">
+    <label class="lab" for="rTxt">Or paste a backup</label>
+    <textarea class="f" id="rTxt" style="min-height:110px"></textarea>
+    <button class="btn block" style="margin-top:8px" onclick="previewRestore(document.getElementById('rTxt').value)">Check this backup</button>
+    <div id="rPrev" style="margin-top:10px"></div>`);
+}
+function restoreFile(inp){ const f = inp.files && inp.files[0]; if(f) f.text().then(previewRestore); }
+function previewRestore(txt){
+  const el = document.getElementById("rPrev"); if(!el) return;
+  try{
+    const s = JSON.parse(txt); if(!s || !s.game || !Array.isArray(s.season)) throw 0;
+    PENDING = s; const last = s.season[s.season.length-1], n = s.season.length, m = S.season.length;
+    el.innerHTML = `<div class="card"><b>${n} game${n===1?"":"s"} in this backup</b>
+      <p class="hint">${last ? `Most recent: ${esc(last.us)} vs ${esc(last.opp)}, ${last.score.us}–${last.score.opp}. ` : ""}This replaces the ${m} game${m===1?"":"s"} on this phone.</p>
+      <button class="btn pri block" onclick="doRestore()">Replace my book with this backup</button></div>`;
+  }catch(e){ PENDING = null; el.innerHTML = `<p class="hint">That doesn't look like an xO Football backup.</p>`; }
+}
+function doRestore(){ if(!PENDING) return; S = Object.assign(blank(), PENDING); S.firstRun = false; PENDING = null; save(); closeSheet(); go("film"); }
+
+/* ---------- Welcome and feedback ---------- */
 function welcome(){
-  const g = G(), teamOpts = TEAMS.map((t,i)=>`<option value="${i}" ${t[0]===g.us?"selected":""}>${esc(t[0])}</option>`).join("");
+  const g = G();
+  const opts = sel => TEAMS.map((t,i)=>`<option value="${i}" ${t[0]===sel?"selected":""}>${esc(t[0])}</option>`).join("");
   openSheet(`<div class="welcome">
     <div class="w-logo">${logoSVG("w")}</div>
     <h2>Watch the game like a coach</h2>
     <p>xO Football turns your phone into a coach's chart. You log what you see, snap by snap, and it tells you how the game is really being won.</p>
     <div class="w-steps">
-      <div><i class="sn on">1</i><div><b>Scouting</b><span>Pick your team and three Keys to the Game before kickoff.</span></div></div>
+      <div><i class="sn on">1</i><div><b>Scouting</b><span>Three Keys to the Game are suggested for your matchup. Keep them or swap them.</span></div></div>
       <div><i class="sn on">2</i><div><b>Live</b><span>Every snap: personnel before it, the play after it, the result if you caught it.</span></div></div>
-      <div><i class="sn on">3</i><div><b>Halftime and Final</b><span>Your keys get graded, and the film tells you what the box score doesn't.</span></div></div>
-      <div><i class="sn on">4</i><div><b>Film Room</b><span>Lock the game into your book and climb the ladder from Student Assistant to Head Coach.</span></div></div>
+      <div><i class="sn on">3</i><div><b>Halftime and Final</b><span>Your keys get graded, and your film is held up against the box score.</span></div></div>
+      <div><i class="sn on">4</i><div><b>Film Room</b><span>Save the game to your book and climb the ladder from Student Assistant to Head Coach.</span></div></div>
     </div>
     <p class="hint">New to "11 personnel"? The two-minute install teaches it with pictures.</p>
     <button class="btn block" onclick="openInstall('pers')">Take the two-minute install</button>
     <label class="lab" for="wTeam" style="margin-top:14px">Who do you root for?</label>
-    <select class="f" id="wTeam"><option value="">Choose your team…</option>${teamOpts}</select>
+    <select class="f" id="wTeam"><option value="">Choose your team…</option>${opts(S.firstRun ? "" : g.us)}</select>
+    <label class="lab" for="wOpp">Who are they playing next?</label>
+    <select class="f" id="wOpp"><option value="">Choose the opponent…</option>${opts(g.opp)}</select>
     <button class="btn pri block" style="margin-top:12px" onclick="finishWelcome()">Let's go</button>
-    <p class="hint" style="margin-top:10px">Everything you chart stays on this phone. Nothing is sent anywhere.</p>
+    <p class="hint" style="margin-top:10px">Everything you chart stays on this phone. Nothing is sent anywhere. ${XO_VERSION}.</p>
   </div>`);
 }
 function finishWelcome(){
-  const v = document.getElementById("wTeam").value;
-  if(v!=="") pickTeam("us", v);
+  const a = document.getElementById("wTeam").value, b = document.getElementById("wOpp").value;
+  if(a!=="") pickTeam("us", a);
+  if(b!=="") pickTeam("opp", b);
   S.firstRun = false; save(); closeSheet(); go("scout");
 }
 function sendFeedback(){
-  const g = G();
+  const g = G(), off = plays(s=>s.pos==="us"), def = plays(s=>s.pos==="opp"), all = plays();
+  const tagged = all.filter(s=>s.res).length, ts = all.map(s=>s.t).filter(Boolean), cov = coverage();
+  const mins = ts.length>1 ? Math.round((Math.max(...ts)-Math.min(...ts))/60000) : null;
   const text = `xO Football feedback (${XO_VERSION})
-Game: ${g.us||"?"} vs ${g.opp||"?"}, ${plays().length} snaps charted
+Game: ${g.us||"?"} vs ${g.opp||"?"}
+Charted: ${all.length} snaps (${off.length} offense, ${def.length} defense), ${cov.n} of ${cov.total} possessions
+Results tagged on ${all.length ? Math.round(tagged/all.length*100) : 0}% of snaps
+Keys: ${g.picked.map(id=>KEY[id].short).join(", ") || "none"}${mins!=null ? `\nTime charting: about ${mins} minutes` : ""}
 
 1. Did you chart the whole game? If not, when did you stop?
 2. What was slow or confusing on the Live screen?
@@ -1853,9 +2099,7 @@ Game: ${g.us||"?"} vs ${g.opp||"?"}, ${plays().length} snaps charted
   if(navigator.share){ navigator.share({title:"xO Football feedback", text}).catch(()=>{}); }
   else { location.href = "sms:?&body=" + encodeURIComponent(text); }
 }
-function helpFooter(){
-  return `<div class="foot"><button class="link" onclick="welcome()">How it works</button><button class="link" onclick="sendFeedback()">Send feedback</button><span>${XO_VERSION}</span></div>`;
-}
+
 /* ---------- sheet + tabs ---------- */
 function openSheet(html){ document.getElementById("sheetIn").innerHTML = html; document.getElementById("sheet").classList.add("on"); document.getElementById("scrim").classList.add("on"); document.getElementById("sheet").scrollTop = 0; }
 function closeSheet(){ document.getElementById("sheet").classList.remove("on"); document.getElementById("scrim").classList.remove("on"); }
