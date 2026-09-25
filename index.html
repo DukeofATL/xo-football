@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#13274F">
 <title>xO Football</title>
+<script>window.XO_HOSTED = true;</script>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png">
@@ -916,7 +917,7 @@ function markerLoop(){ return `<svg class="loop" viewBox="0 0 100 40" preserveAs
 /* ---------- render: live ---------- */
 
 /* ---------- render: scouting report ---------- */
-function setField(k, v){ G()[k] = v; if(k==="us"||k==="opp"){} save(); }
+function setField(k, v){ G()[k] = v; if((k==="us"||k==="opp") && typeof autoTape==="function") autoTape(false); save(); }
 function setAb(k, v){ G()[k] = v.toUpperCase().slice(0,5); save(); }
 function setNote(k, v){ G().notes[k] = v; save(); }
 /* ---------- Tale of the Tape: every number is a quick-pick dropdown ---------- */
@@ -958,6 +959,7 @@ function tapeHTML(){
       ${rows}${personnelRows()}</table>
     <div class="row" style="margin-top:8px"><span class="src grow" style="margin:0">Tap any number to set it.</span>
       <label class="src" style="margin:0">Through week ${tsel("meta","thru",rng(1,16,1,0),"",false,"mini")}</label></div>
+    ${seasonSourceLine()}
     ${TAPE_MSG ? `<p class="hint" style="margin-top:8px">${esc(TAPE_MSG)}</p>` : ""}
     ${snap}`;
 }
@@ -1001,6 +1003,7 @@ function pickTeam(side, idx){
   const t = TEAMS[+idx]; if(!t) return; const g = G();
   if(side==="us"){ g.us=t[0]; g.usAb=t[1]; g.usColors=[t[2],t[3],t[4]]; }
   else { g.opp=t[0]; g.oppAb=t[1]; g.oppColor=t[2]; }
+  if(typeof autoTape==="function") autoTape(false);
   save(); applyColors(); renderScout();
 }
 function setSel(k, v){ G()[k] = v; save(); renderScout(); }
@@ -1450,6 +1453,7 @@ function renderScout(){
     </div>
     <h3>Tale of the Tape</h3>
     <div class="card">${tapeHTML()}</div>
+    ${tendHTML()}
     <h3>Keys to the Game</h3>
     <div class="three">${slots}</div>
     ${topThree().length===3 && g.picked.length<3 ? `<button class="btn block" style="margin:6px 0 4px" onclick="useTopThree()">Use the top three from my book</button>` : ""}
@@ -1470,7 +1474,8 @@ function boxBlock(ph){
   let needed = 0, filled = 0;
   for(const f in need) for(const side in need[f]){ needed++; const v = b[side][f]; if(v!==""&&v!=null) filled++; else if(f==="to" && G().snaps.some(s=>!s.st)) filled++; }
   const status = !needed ? "Nothing needed for your keys" : filled>=needed ? "All set" : `${needed-filled} number${needed-filled>1?"s":""} needed`;
-  return `<details class="card boxd" ${needed && filled<needed ? "open" : ""}><summary><b>Box score</b><span class="bstat">${status}</span></summary><div style="margin-top:10px">${boxForm(ph)}</div></details>`;
+  const open = (needed && filled<needed) || BOX_MSG[ph];
+  return `<details class="card boxd" ${open ? "open" : ""}><summary><b>Box score</b><span class="bstat">${status}</span></summary><div style="margin-top:10px">${espnBlock(ph)}${boxForm(ph)}</div></details>`;
 }
 function feed(items){
   return `<div class="card feed">${items.map(([tag,t,strong])=>`<div class="fi"><span class="ftag">${tag}</span><p>${strong?"<b>":""}${esc(t)}${strong?"</b>":""}</p></div>`).join("")}</div>`;
@@ -1623,6 +1628,157 @@ function renderFilm(){
     <div class="foot"><span>Your book lives on this device.</span><button class="link" onclick="copyBackup()">Copy backup</button><button class="link" onclick="restoreSheet()">Restore</button></div>`;
 }
 
+/* ================= Hosted data: season stats (CollegeFootballData.com) and live box scores (ESPN) ================= */
+/* Only runs on the hosted GitHub version, which sets window.XO_HOSTED. The Claude version can't reach outside sites. */
+const HOSTED = !!window.XO_HOSTED;
+let SEASON = null, BOX_MSG = {half:"", final:""}, ESPN_SCORE = {half:null, final:null};
+const normName = s => String(s||"").toLowerCase().replace(/&/g,"and").replace(/\bst\.?\b/g,"state").replace(/[^a-z0-9]/g,"");
+const ALIAS = {pitt:"pittsburgh", umass:"massachusetts", uconn:"connecticut", ole_miss:"olemiss", miamifl:"miami", miamiflorida:"miami", usc:"usc", byu:"byu", lsu:"lsu", tcu:"tcu", smu:"smu", ucf:"ucf", utsa:"utsa", utep:"utep", unlv:"unlv"};
+function seasonTeam(name){
+  if(!SEASON || !SEASON.teams || !name) return null;
+  const n = normName(name), target = ALIAS[n] || n;
+  for(const k in SEASON.teams) if(normName(k)===target) return SEASON.teams[k];
+  return null;
+}
+async function loadSeason(){
+  if(!HOSTED) return;
+  try{
+    const r = await fetch("data/tendencies.json", {cache:"no-cache"});
+    if(!r.ok) return;
+    SEASON = await r.json();
+    if(autoTape(false)) save();
+    if(S.tab==="scout") renderScout();
+  }catch(e){}
+}
+/* Fill the Tale of the Tape from season stats. force=false only fills a side that's still empty. */
+function autoTape(force){
+  if(!SEASON) return false;
+  const g = G(); let changed = false;
+  [["us",g.us],["opp",g.opp]].forEach(([side,name])=>{
+    const t = seasonTeam(name); if(!t || !t.tape) return;
+    const T = g.tape[side] = g.tape[side] || {};
+    const empty = !Object.keys(T).some(k=>T[k]!==""&&T[k]!=null);
+    if(!force && !empty) return;
+    const put = (f, v, lo, hi, dp) => { if(typeof v!=="number" || !isFinite(v)) return; v = Math.max(lo, Math.min(hi, v)); T[f] = dp ? v.toFixed(dp) : String(Math.round(v)); };
+    const d = t.tape;
+    put("w",d.w,0,15,0); put("l",d.l,0,15,0); put("ppg",d.ppg,0,70,0); put("papg",d.papg,0,60,0);
+    put("run",d.run,25,75,0); put("ypp",d.ypp,3,9,1); put("ypc",d.ypc,1.5,8,1); put("ypa",d.ypa,3,12,1);
+    put("third",d.third,15,65,0); put("tom",d.tom,-15,15,0);
+    if(typeof d.games==="number") g.tape.meta.thru = String(Math.max(+(g.tape.meta.thru||0), Math.max(1, Math.min(16, d.games))));
+    changed = true;
+  });
+  return changed;
+}
+function refillTape(){ if(autoTape(true)){ save(); TAPE_MSG = "Filled from season stats. Red zone is still yours to tap in."; } else TAPE_MSG = "No season stats found for these team names yet."; renderScout(); }
+function seasonSourceLine(){
+  if(!SEASON) return "";
+  const has = seasonTeam(G().us) || seasonTeam(G().opp);
+  if(!has) return `<p class="src" style="margin-top:8px">Season stats are loaded, but these team names didn't match. Use the team quick picks to line them up.</p>`;
+  const when = SEASON.updated ? new Date(SEASON.updated).toLocaleDateString(undefined,{month:"short",day:"numeric"}) : "";
+  return `<div class="row" style="margin-top:10px"><span class="src grow" style="margin:0">Season stats from CollegeFootballData.com${when?`, updated ${esc(when)}`:""}.</span><button class="btn" style="min-height:36px;padding:6px 10px;font-size:13px" onclick="refillTape()">Refill</button></div>`;
+}
+/* Pregame tendencies, side by side */
+const TEND = [
+  {k:"runRate", l:"Run rate", suf:"%", dp:0, better:0},
+  {k:"sr", l:"Success rate", suf:"%", dp:0, better:1},
+  {k:"expl", l:"Explosiveness", dp:2, better:1},
+  {k:"pdsr", l:"Passing-down success", suf:"%", dp:0, better:1},
+  {k:"lineYds", l:"Line yards per carry", dp:1, better:1},
+  {k:"stuffAllowed", l:"Runs stuffed", suf:"%", dp:0, better:-1},
+  {k:"dSr", l:"Success rate allowed", suf:"%", dp:0, better:-1},
+  {k:"dExpl", l:"Explosiveness allowed", dp:2, better:-1},
+  {k:"dHavoc", l:"Defensive havoc", suf:"%", dp:0, better:1}
+];
+function tendHTML(){
+  const a = seasonTeam(G().us), b = seasonTeam(G().opp);
+  if(!(a&&a.tend) && !(b&&b.tend)) return "";
+  const fmt = (t,r) => { const v = t && t.tend ? t.tend[r.k] : null; return typeof v==="number" ? v.toFixed(r.dp)+(r.suf||"") : "–"; };
+  const rows = TEND.map(r=>{
+    const x = a&&a.tend ? a.tend[r.k] : null, y = b&&b.tend ? b.tend[r.k] : null; let wa="", wb="";
+    if(r.better && typeof x==="number" && typeof y==="number" && x!==y){ const aw = r.better>0 ? x>y : x<y; wa = aw?"win":""; wb = aw?"":"win"; }
+    return `<tr><td class="v ${wa}">${fmt(a,r)}</td><td class="lbl">${r.l}</td><td class="v ${wb}">${fmt(b,r)}</td></tr>`;
+  }).join("");
+  return `<h3>Tendencies</h3><div class="card"><table class="tape"><tr class="hd"><td class="us">${esc(usA())}</td><td></td><td class="opp">${esc(oppA())}</td></tr>${rows}</table>
+    <p class="src" style="margin-top:8px">Every play of the season, from CollegeFootballData.com. Success rate means the play stayed on schedule. Explosiveness is how big the successful plays were. Havoc is tackles for loss, takeaways and passes defended.</p></div>`;
+}
+
+/* ---------- ESPN: pull the live box score at halftime or the final ---------- */
+async function espnGet(path){
+  for(const base of ["https://site.api.espn.com","https://site.web.api.espn.com"]){
+    try{ const r = await fetch(base+path); if(r.ok) return await r.json(); }catch(e){}
+  }
+  throw new Error("unreachable");
+}
+function espnMatch(team, name){
+  const n = normName(name); if(!n || !team) return 0;
+  const vals = [team.location, team.shortDisplayName, team.name, team.abbreviation, team.displayName].map(normName);
+  if(vals.includes(n)) return 2;
+  return normName(team.displayName).startsWith(n) ? 1 : 0;
+}
+const ymd = d => `${d.getFullYear()}${String(d.getMonth()+1).padStart(2,"0")}${String(d.getDate()).padStart(2,"0")}`;
+async function findEspnGame(){
+  const g = G(), now = new Date(), days = [now, new Date(now.getTime()-864e5)];
+  let best = null;
+  for(const d of days){
+    const sb = await espnGet(`/apis/site/v2/sports/football/college-football/scoreboard?dates=${ymd(d)}&groups=80&limit=300`);
+    for(const ev of (sb.events||[])){
+      const comps = (ev.competitions && ev.competitions[0] && ev.competitions[0].competitors) || [];
+      const su = Math.max(0, ...comps.map(c=>espnMatch(c.team, g.us))), so = Math.max(0, ...comps.map(c=>espnMatch(c.team, g.opp)));
+      const score = su*3 + so;
+      if(su && (!best || score > best.score)) best = {id:ev.id, score};
+    }
+    if(best && best.score >= 7) break;
+  }
+  return best && best.id;
+}
+async function pullBox(ph){
+  const g = G(); BOX_MSG[ph] = "Pulling the box score from ESPN…"; ESPN_SCORE[ph] = null; rerenderBox(ph);
+  try{
+    const id = await findEspnGame();
+    if(!id){ BOX_MSG[ph] = `Couldn't find a ${g.us} game on ESPN today. Check the team name, or enter the numbers.`; rerenderBox(ph); return; }
+    const sum = await espnGet(`/apis/site/v2/sports/football/college-football/summary?event=${id}`);
+    const teams = (sum.boxscore && sum.boxscore.teams) || [];
+    const box = ph==="half" ? g.half : g.fin; let n = 0;
+    const sideOf = t => espnMatch(t, g.us) >= espnMatch(t, g.opp) && espnMatch(t, g.us) ? "us" : "opp";
+    teams.forEach(bt=>{
+      const side = sideOf(bt.team), stats = bt.statistics || [];
+      const val = (...names) => { for(const nm of names){ const s = stats.find(x=>x.name===nm); if(s) return String(s.displayValue); } return null; };
+      const num = v => { const x = parseFloat(String(v).replace(/,/g,"")); return isFinite(x) ? String(Math.round(x)) : null; };
+      const set = (f, v) => { if(v!=null){ box[side][f] = v; n++; } };
+      set("yds", num(val("totalYards")));
+      set("passYds", num(val("netPassingYards")));
+      set("rushAtt", num(val("rushingAttempts")));
+      set("rushYds", num(val("rushingYards")));
+      set("to", num(val("turnovers")));
+      const third = val("thirdDownEff");
+      if(third && /^\d+-\d+$/.test(third)){ const [m,a] = third.split("-"); set("thirdConv", m); set("thirdAtt", a); }
+      const rz = val("redZoneAttempts","redZoneEff");
+      if(rz && /^\d+-\d+$/.test(rz)){ const [m,a] = rz.split("-"); set("rzTd", m); set("rzTrips", a); }
+    });
+    const comp = sum.header && sum.header.competitions && sum.header.competitions[0];
+    const status = comp && comp.status && comp.status.type ? (comp.status.type.shortDetail || comp.status.type.detail || "") : "";
+    if(comp && comp.competitors){
+      const sc = {us:null, opp:null};
+      comp.competitors.forEach(c=>{ const s = sideOf(c.team); const v = parseInt(c.score,10); if(isFinite(v)) sc[s] = v; });
+      if(sc.us!=null && sc.opp!=null && (sc.us!==g.score.us || sc.opp!==g.score.opp)) ESPN_SCORE[ph] = sc;
+    }
+    save();
+    BOX_MSG[ph] = n ? `Pulled ${n} numbers from ESPN${status?` (${status})`:""}. Check them against the broadcast.` : "ESPN found the game but hasn't posted team stats yet. Try again in a minute.";
+  }catch(e){
+    BOX_MSG[ph] = "Couldn't reach ESPN from this phone right now. Enter the numbers, or try again.";
+  }
+  rerenderBox(ph);
+}
+function useEspnScore(ph){ const sc = ESPN_SCORE[ph]; if(!sc) return; G().score.us = sc.us; G().score.opp = sc.opp; ESPN_SCORE[ph] = null; save(); ph==="half" ? renderHalf() : renderFinal(); }
+function rerenderBox(ph){ if(S.tab==="half" && ph==="half") renderHalf(); if(S.tab==="final" && ph==="final") renderFinal(); }
+function espnBlock(ph){
+  if(!HOSTED) return "";
+  const sc = ESPN_SCORE[ph];
+  return `<button class="btn block" style="margin-bottom:8px" onclick="pullBox('${ph}')">Pull the box score from ESPN</button>
+    ${BOX_MSG[ph] ? `<p class="hint" style="margin:0 0 8px">${esc(BOX_MSG[ph])}</p>` : ""}
+    ${sc ? `<p class="hint" style="margin:0 0 8px">ESPN has ${esc(usA())} ${sc.us}, ${esc(oppA())} ${sc.opp}. <button class="link" onclick="useEspnScore('${ph}')">Use ESPN's score</button></p>` : ""}`;
+}
+
 /* ---------- sheet + tabs ---------- */
 function openSheet(html){ document.getElementById("sheetIn").innerHTML = html; document.getElementById("sheet").classList.add("on"); document.getElementById("scrim").classList.add("on"); document.getElementById("sheet").scrollTop = 0; }
 function closeSheet(){ document.getElementById("sheet").classList.remove("on"); document.getElementById("scrim").classList.remove("on"); }
@@ -1647,6 +1803,7 @@ let SAMPLE = null, CAN_IMG = false, IMG_TYPES = "image/*";
   }catch(e){}
 })();
 go(S.tab || "scout");
+loadSeason();
 </script>
 <script>
 if("serviceWorker" in navigator){ window.addEventListener("load", ()=>{ navigator.serviceWorker.register("sw.js").catch(()=>{}); }); }
