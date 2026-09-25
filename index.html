@@ -452,6 +452,30 @@ details.boxd .bstat{margin-left:auto;font-size:13px;color:var(--muted);font-weig
   .resgrid .chip{min-height:40px}
   .tile svg{height:30px}
 }
+
+/* ===== v12 ===== */
+.their{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+.their .chip{min-height:40px;padding:4px 2px;text-align:center}
+.tipcard{border:2px solid var(--hi)}
+.tipcard .w-steps{margin:10px 0 2px}
+.cov{text-align:center;margin:-2px 0 8px}
+.cov.warn{color:var(--warn);font-weight:600}
+.warnchip{color:var(--warn);font-weight:700}
+@media (max-height: 760px){
+  .their .chip{min-height:36px;font-size:13px}
+  .tile svg{height:24px}
+  .step-lab.minor{margin-top:3px}
+  .plays button{min-height:44px}
+  .resgrid .chip{min-height:38px}
+}
+
+/* sponsor */
+.spons{display:inline-flex;align-items:center;gap:8px;background:#FFFFFF;border-radius:10px;padding:6px 10px;text-decoration:none;color:#15171A;font-size:11.5px;font-weight:700;letter-spacing:.02em;box-shadow:0 1px 3px rgba(0,0,0,.12);min-height:40px}
+.spons img{height:28px;width:auto;display:block}
+.spons.ph{margin-top:8px;padding:4px 9px;min-height:34px}
+.spons.ph img{height:24px}
+.pc-spons{text-align:center;margin-top:12px}
+.pc-spons .spons img{height:36px}
 </style>
 </head>
 <body>
@@ -508,6 +532,17 @@ const BOX = [["yds","Total yards"],["rushAtt","Rush attempts"],["rushYds","Rush 
 const MIXC = {"11":"#FFD43B","10":"#6FD3FF","12":"#7EE08F","21":"#FF9E6B","4 DB":"#FF6B5B","Nickel":"#C79BFF","Dime":"#5FE0CF","Goal line":"#E9E4D6"};
 const isRun = a => a && a[0]==="R";
 
+/* ---------- sponsor: one setting. Set SPONSOR = null to remove it everywhere. ---------- */
+const SPONSOR = {
+  label: "Presented by",
+  name: "Emerald Pools",
+  url: "https://www.emeraldpoolsga.com/?utm_source=xofootball&utm_medium=app&utm_campaign=presented_by",
+  logo: "data:image/png;base64,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"
+};
+function sponsorChip(cls){
+  if(!SPONSOR) return "";
+  return `<a class="spons ${cls||""}" href="${SPONSOR.url}" target="_blank" rel="noopener" aria-label="${SPONSOR.label} ${SPONSOR.name}"><span>${SPONSOR.label}</span><img src="${SPONSOR.logo}" alt="${SPONSOR.name}"></a>`;
+}
 /* ---------- state ---------- */
 const LS = "xo-v9";
 function freshGame(prev, first){
@@ -688,11 +723,12 @@ function defSpots(pkg, v){
 function drawSpots(P, color, faint){
   const key = p => p.k==="rb" || p.k==="te" || p.k==="db";
   return `<g>` + P.map(p=>{
-    const k = !faint && key(p), op = faint ? .35 : (k ? 1 : .42), sw = k ? 2.3 : 1.6, r = k ? 3.5 : 3;
-    if(p.t==="c") return `<rect x="${p.x-3}" y="${p.y-3}" width="6" height="6" fill="none" stroke="${color}" stroke-width="1.6" opacity="${op}"/>`;
-    if(p.t==="o") return `<circle cx="${p.x}" cy="${p.y}" r="${r}" fill="${k?color:"none"}" fill-opacity="${k?.18:0}" stroke="${color}" stroke-width="${sw}" opacity="${op}"/>`;
-    const a = k ? 3.1 : 2.7;
-    return `<path d="M${p.x-a} ${p.y-a}L${p.x+a} ${p.y+a}M${p.x+a} ${p.y-a}L${p.x-a} ${p.y+a}" stroke="${color}" stroke-width="${k?2.4:1.8}" stroke-linecap="round" opacity="${op}"/>`;
+    const k = !faint && key(p), op = faint ? .35 : (k ? 1 : .3);
+    if(p.t==="c") return `<rect x="${p.x-2.6}" y="${p.y-2.6}" width="5.2" height="5.2" fill="none" stroke="${color}" stroke-width="1.3" opacity="${op}"/>`;
+    if(p.t==="o") return k ? `<circle cx="${p.x}" cy="${p.y}" r="3.9" fill="${color}" stroke="${color}" stroke-width="1"/>`
+                           : `<circle cx="${p.x}" cy="${p.y}" r="2.7" fill="none" stroke="${color}" stroke-width="1.3" opacity="${op}"/>`;
+    const a = k ? 3.4 : 2.5;
+    return `<path d="M${p.x-a} ${p.y-a}L${p.x+a} ${p.y+a}M${p.x+a} ${p.y-a}L${p.x-a} ${p.y+a}" stroke="${color}" stroke-width="${k?3:1.5}" stroke-linecap="round" opacity="${op}"/>`;
   }).join("") + `</g>`;
 }
 function glyphOff(grp, v, big, col){
@@ -804,12 +840,10 @@ const KEY_CATS = [
   {id:"rhythm",n:"Rhythm",          d:"Staying on schedule and balanced",         keys:["sched","bal","yds"]}
 ];
 function suggestKeys(){
-  const g = G(), top = g.tier==="Top 10" || g.tier==="Top 25", low = g.tier==="Group of Five" || g.tier==="FCS";
-  let ks = g.role==="Underdog" ? (top ? ["exploA","to","thirdD"] : ["exploA","to","runD"])
-         : g.role==="Favorite" ? (low ? ["protect","sched","bigO"] : ["protect","runO","ptsD"])
-         : ["to","explo","thirdO"];
+  const g = G();
+  let ks = g.role==="Underdog" ? ["exploA","to","stuffs"] : g.role==="Favorite" ? ["protect","sched","ptsD"] : ["to","explo","ptsO"];
   const o = typeof seasonTeam==="function" ? seasonTeam(g.opp) : null, rr = o && o.tend ? o.tend.runRate : null;
-  if(rr!=null && rr>=55 && !ks.includes("runD")) ks[2] = "runD";
+  if(rr!=null && rr>=55 && !ks.includes("stuffs")) ks[2] = "stuffs";
   if(rr!=null && rr<=42 && !ks.includes("exploA")) ks[2] = "exploA";
   return [...new Set(ks)].slice(0,3);
 }
@@ -881,6 +915,8 @@ function checkAlerts(){
   if(gap >= 15) pushAlert(`load:${Math.floor(gap/10)}`, `Workload: your defense has played ${def.length} snaps to your offense's ${off.length}. Watch for a late-game wear-down.`);
 }
 
+const cap1 = t => t ? t.charAt(0).toUpperCase() + t.slice(1) : t;
+const RES_NOTE = {"4+":"Gain of 4 or more: on schedule.","Stuffed":"Stuffed: no gain or a loss.","Explosive":"Explosive play."};
 /* ---------- captions: the lesson on every snap ---------- */
 function captionFor(s){
   const a = ACT[s.act];
@@ -889,12 +925,12 @@ function captionFor(s){
     if(s.grp==="10" && isRun(s.act)) note = "a run out of four wide: they spread the box out first";
     else if((s.grp==="12"||s.grp==="21") && !isRun(s.act)) note = "a pass out of heavy personnel: the play-action look";
     else if(s.grp==="11" && s.act==="PD") note = "a shot out of the base look";
-    return `<b>${esc(s.grp)} personnel, ${a[2]}.</b> ${note}.`;
+    return `<b>${esc(s.grp)} personnel, ${a[2]}.</b> ${cap1(note)}.`;
   }
   let note = DEF_LESSON[s.grp];
   if((s.grp==="Nickel"||s.grp==="Dime") && isRun(s.act)) note = `${esc(oppN())} ran at your lighter package`;
   else if(s.grp==="4 DB" && !isRun(s.act)) note = `${esc(oppN())} threw against your run package`;
-  return `<b>Your ${esc(s.grp)}, they ${a[2]}.</b> ${note}.`;
+  return `<b>Your ${esc(s.grp)}, they ${a[2]}.</b> ${cap1(note)}.`;
 }
 
 /* ---------- charter ladder ---------- */
@@ -958,6 +994,7 @@ function tapRes(r){
   if(s.res==="TD") g.caption = `<b>Touchdown, ${esc(s.pos==="us"?usN():oppN())}.</b> Six added. Log the extra point or two-point try under special teams.`;
   else if(s.res==="Turnover") g.caption = `<b>Turnover.</b> Ball flipped to ${esc(g.pos==="us"?usN():oppN())}.`;
   else if(s.res==="Turnover TD") g.caption = `<b>Returned for a touchdown.</b> Six to ${esc(g.pos==="us"?usN():oppN())}. Log their extra point, then the kickoff.`;
+  else g.caption = captionFor(s) + (s.res ? ` <b>${RES_NOTE[s.res]}</b>` : "");
   save(); renderLive();
 }
 function tapRush(r){ const s = lastPlay(); if(!s || s.pos!=="opp") return; s.rush = s.rush===r ? null : r; save(); renderLive(); }
@@ -1322,8 +1359,8 @@ function answer(o){
 }
 
 /* ================= v10: page heads, the live flow, keys by category, reports, Film Room ================= */
-function pageHead(title, sub){
-  return `<header class="pagehead"><div class="ph-t"><div class="ph-brand">xO Football</div><h2>${esc(title)}</h2>${sub ? `<div class="ph-sub">${sub}</div>` : ""}</div>
+function pageHead(title, sub, spon){
+  return `<header class="pagehead"><div class="ph-t"><div class="ph-brand">xO Football</div><h2>${esc(title)}</h2>${sub ? `<div class="ph-sub">${sub}</div>` : ""}${spon ? sponsorChip("ph") : ""}</div>
     <div class="ph-logo">${logoSVG("h"+title.replace(/\W/g,""))}</div></header>`;
 }
 function emptyState(svg, title, text){
@@ -1590,7 +1627,7 @@ function espnBlock(ph){
 
 
 /* ---------- Welcome, how it works, feedback ---------- */
-const XO_VERSION = "v11, Sept 25";
+const XO_VERSION = "v12, Sept 25";
 function helpFooter(){
   return `<div class="foot"><button class="link" onclick="welcome()">How it works</button><button class="link" onclick="sendFeedback()">Send feedback</button><span>${XO_VERSION}</span></div>`;
 }
@@ -1622,6 +1659,8 @@ function tapAct(code){
   g.theirPkg = null; g.motion = false; g.awaitRes = true;
   g.caption = captionFor(s);
   checkAlerts();
+  const run = plays(x=>x.series===s.series && x.pos===s.pos).length;
+  if(run===10 || run===15) g.caption = `<b>${run} straight ${esc(s.pos==="us"?usA():oppA())} snaps.</b> Did ${esc(s.pos==="us"?oppN():usN())} get the ball? Tap ${esc(s.pos==="us"?oppA():usA())} ball when they do.`;
   if(prev && !prev.st && prev.pos===s.pos && prev.res==="TD")
     g.caption = `<b>Still ${esc(s.pos==="us"?usN():oppN())} ball?</b> They just scored. If the other team has it now, tap Undo, then ${esc(s.pos==="us"?oppA():usA())} ball.`;
   save(); renderLive();
@@ -1630,21 +1669,21 @@ function driveChip(){
   const g = G(), team = g.pos==="us" ? usA() : oppA(), l = plays(s=>s.series===g.series && s.pos===g.pos);
   if(!l.length) return `${esc(team)} drive: no snaps yet`;
   const m = mode(l, s=>s.grp), runs = l.filter(s=>isRun(s.act)).length;
-  return `${esc(team)} drive: <b>${l.length}</b> play${l.length>1?"s":""}, mostly ${esc(m.k)}, ${runs} run${runs===1?"":"s"}`;
+  const base = `${esc(team)} drive: <b>${l.length}</b> play${l.length>1?"s":""}, mostly ${esc(m.k)}, ${runs} run${runs===1?"":"s"}`;
+  return l.length>=10 ? `<span class="warnchip">${base}. Still their ball?</span>` : base;
 }
-function liveTip(){
-  openSheet(`<div class="sheet-h"><h3>How to chart a snap</h3><button class="x" onclick="closeSheet()">Got it</button></div>
+function liveTipCard(){
+  return `<div class="card tipcard"><div class="row"><b class="grow">How to chart a snap</b><button class="btn pri" onclick="dismissTip()">Got it</button></div>
     <div class="w-steps">
-      <div><i class="sn on">1</i><div><b>Before the snap: personnel</b><span>Count the backs and tight ends. The bold players in each picture are the ones to count. It stays selected until it changes.</span></div></div>
+      <div><i class="sn on">1</i><div><b>Before the snap: personnel</b><span>Count the solid dots: backs and tight ends. It stays selected until it changes.</span></div></div>
       <div><i class="sn on">2</i><div><b>After the snap: the play</b><span>Run or pass, and where. This tap saves the snap.</span></div></div>
       <div><i class="sn on">3</i><div><b>The result, if you caught it</b><span>Optional. It updates the snap you just saved.</span></div></div>
-      <div><i class="sn on">4</i><div><b>The ball flips itself</b><span>After punts, kicks, extra points and turnovers. Tap any snap in the log to fix it.</span></div></div>
-    </div>
-    <button class="btn pri block" onclick="closeSheet()">Got it</button>`);
+      <div><i class="sn on">4</i><div><b>Who has the ball</b><span>Log a punt, field goal, extra point or turnover and possession switches for you. Otherwise tap the other team's ball.</span></div></div>
+    </div></div>`;
 }
+function dismissTip(){ S.profile.liveTip = true; save(); renderLive(); }
 function renderLive(){
   const g = G(), rank = rankNow(), us = g.pos==="us";
-  if(!S.profile.liveTip){ S.profile.liveTip = true; save(); setTimeout(liveTip, 0); }
   const lastAlert = g.alerts[g.alerts.length-1];
   const showAlert = lastAlert && lastAlert.n===g.snaps.length && !g.caption;
   const cap = showAlert ? `<div class="cap alert">${markerLoop()}<b>Tendency Alert.</b> ${esc(lastAlert.text)}</div>`
@@ -1666,8 +1705,7 @@ function renderLive(){
   const list = us ? OFF : DEF, sel = g.grp[g.pos];
   const tiles = list.map(x=>`<button class="tile ${sel===x?"on":""}" onclick="tapGrp('${x}')" aria-pressed="${sel===x}">
       ${us ? glyphOff(x) : glyphDef(x)}<span class="tt"><span class="nm">${x}</span><span class="sub">${us?OFF_SUB[x]:DEF_SUB[x]}</span></span></button>`).join("");
-  const their = (us ? DEF : OFF).map(x=>`<button class="mtile ${g.theirPkg===x?"on":""}" onclick="tapTheir('${x}')" aria-pressed="${g.theirPkg===x}">
-      ${us ? glyphDef(x,null,false,"var(--muted)") : glyphOff(x,null,false,"var(--muted)")}<b>${x}</b></button>`).join("");
+  const their = (us ? DEF : OFF).map(x=>`<button class="chip ${g.theirPkg===x?"on":""}" onclick="tapTheir('${x}')" aria-pressed="${g.theirPkg===x}">${x}</button>`).join("");
   const playBtns = ACTS.map(a=>`<button class="${isRun(a[0])?"run":"pass"}" onclick="tapAct('${a[0]}')"><small>${isRun(a[0])?"Run":"Pass"}</small>${PLAY_WORD[a[0]]}</button>`).join("");
   const res = RESULTS.map(r=>{ const cls = (r==="TD"||r==="Turnover TD"?"wide ":"") + (r==="TD"?"td ":"") + (r==="Turnover"||r==="Turnover TD"?"bad ":"") + (lp&&lp.res===r?"on":"");
     return `<button class="chip ${cls}" onclick="tapRes('${r}')">${RES_LABEL[r]}</button>`; }).join("");
@@ -1681,11 +1719,11 @@ function renderLive(){
   const log = g.snaps.slice(n0).map((s,j)=>({s,i:n0+j})).reverse().map(({s,i})=> s.st
       ? `<button class="logrow" onclick="editSnap(${i})"><span class="tag">${s.pos==="us"?esc(usA()):esc(oppA())}</span><span class="grow">${s.st} (${s.q===5?"OT":"Q"+s.q})</span></button>`
       : `<button class="logrow" onclick="editSnap(${i})"><span class="tag ${s.pos==="us"?"o":"d"}">${s.pos==="us"?esc(usA()):esc(oppA())}</span><span class="grow">${s.pos==="us"?s.grp+" personnel":"vs your "+s.grp}, ${ACT[s.act][2]}${s.res?", "+RES_LABEL[s.res]:""}${s.vs?" (they were in "+s.vs+")":""}</span><span class="ed">Fix</span></button>`).join("");
-  document.getElementById("livePad").innerHTML = `
+  document.getElementById("livePad").innerHTML = `${S.profile.liveTip ? "" : liveTipCard()}
     <div class="step-lab"><span><i class="sn ${awaiting?"":"on"}">1</i>${us?`${esc(usN())} personnel`:"Your defensive package"}</span><span>before the snap</span></div>
     <div class="tiles">${tiles}</div>
-    <div class="step-lab minor"><span>${us?"Their defense":"Their personnel"} <button class="fold" onclick="toggleTheir()">${THEIR_OPEN||g.theirPkg?"Hide":"Show"}</button></span><span>optional, this snap only</span></div>
-    <div class="mini-tiles ${THEIR_OPEN||g.theirPkg?"":"folded"}">${their}</div>
+    <div class="step-lab minor"><span>${us?"Their defense":"Their personnel"}</span><span>optional, this snap only</span></div>
+    <div class="their">${their}</div>
     <div class="step-lab"><span><i class="sn">2</i>The play</span><span>after the snap, saves it</span></div>
     <div class="plays">${playBtns}</div>
     <div class="step-lab"><span><i class="sn ${awaiting?"on":""}">3</i>Result <button class="qm" onclick="resHelp()" aria-label="What the results mean">?</button></span><span>optional</span></div>
@@ -1852,7 +1890,7 @@ function q3Tells(){
 function renderHalf(){
   const g = G();
   document.getElementById("halfOut").innerHTML = `
-    ${pageHead("Halftime Report", `${esc(usA())} ${g.score.us}, ${esc(oppA())} ${g.score.opp}`)}
+    ${pageHead("Halftime Report", `${esc(usA())} ${g.score.us}, ${esc(oppA())} ${g.score.opp}`, true)}
     <h3>A. Your keys</h3><div id="halfKeys"></div>
     ${boxBlock("half")}
     <div id="halfReport"></div>
@@ -1872,9 +1910,16 @@ function renderHalfReport(){
 
 /* ---------- Final ---------- */
 function coverage(){
-  const g = G(), hit = new Set(); plays().forEach(s=>hit.add(s.series));
+  const g = G(), hit = new Set(), us = new Set(), opp = new Set();
+  plays().forEach(s=>{ hit.add(s.series); (s.pos==="us"?us:opp).add(s.series); });
   const total = Math.max(g.series, hit.size);
-  return {n:hit.size, total, pct: total ? hit.size/total : 0};
+  return {n:hit.size, total, pct: total ? hit.size/total : 0, us:us.size, opp:opp.size};
+}
+function coverageLine(){
+  const c = coverage(); if(!c.n) return "";
+  if(!c.us || !c.opp){ const side = c.us ? usN() : oppN(), other = c.us ? oppN() : usN();
+    return `One-sided film: only ${side} charted (${c.n} possession${c.n===1?"":"s"}). Chart ${other} too, and Halftime and the Final can compare both sides.`; }
+  return `You charted ${c.n} of ${c.total} possessions: ${usA()} ${c.us}, ${oppA()} ${c.opp}.`;
 }
 function decidingKey(){
   const res = outcome(); if(res==="T") return null;
@@ -1903,7 +1948,7 @@ function renderFinalReport(){
       <div class="res ${started?res:""}">${!started ? "Final" : res==="W" ? "Win" : res==="L" ? "Loss" : "Tie"}</div>
       <div class="t r"><b>${g.score.opp}</b>${tag(oppA(), g.oppColor)}</div>
     </div>
-    ${plays().length ? `<p class="hint" style="text-align:center;margin:-2px 0 8px">You charted ${cov.n} of ${cov.total} possessions (${pct(cov.pct)}).</p>` : ""}
+    ${plays().length ? `<p class="hint cov ${cov.us&&cov.opp?"":"warn"}">${esc(coverageLine())}</p>` : ""}
     <div class="card dk"><div class="eyebrow">Deciding Key</div>
       ${d ? `<div class="circled">${markerLoop()}<b>${esc(KEY[d.id].title(thOf(KEY[d.id])))}</b></div>
              <p class="math">Happened: ${esc(d.raw.text)}.</p><p class="hint">${d.mine?"It was one of your three.":"It wasn't in your three."} It missed or beat its line by the widest margin, in the direction of the final score.</p>`
@@ -1930,7 +1975,7 @@ function lockGame(partial){
   const d = partial ? null : decidingKey(), cov = coverage();
   const row = { id:g.id, us:g.us, opp:g.opp, role:g.role, tier:g.tier, score:{...g.score}, result: partial ? "H" : outcome(), partial:!!partial,
     snaps:off.length+def.length, offN:off.length, defN:def.length, agg:{off:aggOf(off), def:aggOf(def)}, keyResults, picked:g.picked.slice(),
-    deciding:d?d.id:null, pickedDeciding:!!(d&&d.mine), cov:{n:cov.n,total:cov.total},
+    deciding:d?d.id:null, pickedDeciding:!!(d&&d.mine), cov:{n:cov.n,total:cov.total,us:cov.us,opp:cov.opp},
     story: partial ? `First half: ${usN()} ${g.score.us}, ${oppN()} ${g.score.opp}.` : story(), when:Date.now() };
   const i = S.season.findIndex(x=>x.id===g.id);
   if(i>=0) S.season[i] = row; else S.season.push(row);
@@ -1950,7 +1995,8 @@ function showCard(){
       ${mix}
       ${g.picked.map(id=>{ const k=KEY[id], r=keyState(k,"final"); return `<div class="kl"><span>${esc(k.title(thOf(k)))}</span><span class="st ${r.st}">${ST_LABEL[r.st]}</span></div>`; }).join("")}
       ${d ? `<div class="kl"><span><b>Deciding Key</b></span><span>${esc(KEY[d.id].short)}</span></div>` : ""}
-      <div class="by">Charted on xO Football${S.profile.name ? " by "+esc(S.profile.name) : ""}. ${plays().length} snaps, ${cov.n} of ${cov.total} possessions.</div>
+      <div class="by">Charted on xO Football${S.profile.name ? " by "+esc(S.profile.name) : ""}. ${plays().length} snaps. ${esc(coverageLine())}</div>
+      ${SPONSOR ? `<div class="pc-spons">${sponsorChip()}</div>` : ""}
     </div>`;
   el.classList.add("on");
 }
@@ -1975,6 +2021,23 @@ function renderFilm(){
       <div class="legend">${list.filter(k=>t[k]).map(k=>`<div><i style="background:${MIXC[k]}"></i><b>${k}</b><span>${pct(t[k].n/tot)} of snaps, ${who} ${pct(t[k].run/t[k].n)}</span></div>`).join("")}</div>`; };
   document.getElementById("filmOut").innerHTML = `
     ${pageHead("Film Room", r ? `Rank: ${esc(RANKS[r-1].n)}` : "Unranked. Chart a full game to start the climb.")}
+    <h3>Tendencies</h3>
+    ${live ? `<p class="hint" style="margin-top:-2px">Includes this game, not locked yet.</p>` : ""}
+    <div class="card"><div class="eyebrow">${esc(G().us)} offense</div>${tend("off", OFF, "run")}</div>
+    <div class="card"><div class="eyebrow">Your defense</div>${tend("def", DEF, "they ran")}</div>
+    <h3>Season</h3>
+    <div class="card">
+      <div class="seg">${["All",...TIERS].map(t=>`<button class="chip ${FILMTIER===t?"on":""}" onclick="setFilmTier('${t}')">${t}</button>`).join("")}</div>
+      ${games.length ? `<div class="recbig"><b>${W}–${L2}</b><span>${FILMTIER==="All"?"this season":"vs "+FILMTIER}</span></div>
+        ${eyeN ? `<p class="hint">Your three keys included the Deciding Key in ${eyeY} of ${eyeN} games.</p>` : ""}
+        ${games.slice().reverse().map(x=>`<div class="grow-row"><span class="wl ${x.result}">${x.result==="H"?"½":x.result}</span><div><b>${x.score.us}–${x.score.opp} vs ${esc(x.opp)}${x.partial?" (first half)":""}</b><small>${esc(x.tier)}. ${esc(x.story||"")}${x.cov?` Charted ${x.cov.n} of ${x.cov.total} possessions.`:""}</small></div></div>`).join("")}`
+        : emptyState(glyphOff("11"), "Your season starts here", "Save a first half at halftime or lock the game from the Final, and it lands in your book.")}
+    </div>
+    <h3>Key Tracker</h3>
+    <div class="card">${kt.length ? kt.map(x=>`<div class="ktr"><b>${esc(x.k.short)}</b><span class="pillw">Won it ${x.rec.wW}–${x.rec.wL}</span><span class="pilll">Lost it ${x.rec.lW}–${x.rec.lL}</span></div>`).join("")
+        + `<p class="hint" style="margin-top:8px">${esc(G().us)}'s record when winning or losing each key. Small samples: don't generalize from one game.</p>`
+      : emptyState(glyphDef("4 DB"), "No key records yet", "Every locked game grades every key, so you learn which ones really decide your games.")}</div>
+    <h3>The ladder</h3>
     <div class="card ladder-card">
       ${ladderSVG(r)}
       ${r < RANKS.length ? `<div class="nextup"><div class="eyebrow">Next: ${esc(RANKS[r].n)}</div>
@@ -1993,23 +2056,8 @@ function renderFilm(){
         <p class="hint" style="margin:2px 0 8px">${d}${id!=="tend" && P.walk[id] ? ` Best walkthrough: ${P.walk[id]} of 10.` : ""}</p>
         <div class="row"><button class="btn grow" onclick="openInstall('${id}')">Install</button>${id!=="tend"?`<button class="btn grow" onclick="startWalk('${id}')">Walkthrough</button>`:""}</div>
       </div></div>`).join("")}
-    <h3>Season</h3>
-    <div class="card">
-      <div class="seg">${["All",...TIERS].map(t=>`<button class="chip ${FILMTIER===t?"on":""}" onclick="setFilmTier('${t}')">${t}</button>`).join("")}</div>
-      ${games.length ? `<div class="recbig"><b>${W}–${L2}</b><span>${FILMTIER==="All"?"this season":"vs "+FILMTIER}</span></div>
-        ${eyeN ? `<p class="hint">Your three keys included the Deciding Key in ${eyeY} of ${eyeN} games.</p>` : ""}
-        ${games.slice().reverse().map(x=>`<div class="grow-row"><span class="wl ${x.result}">${x.result==="H"?"½":x.result}</span><div><b>${x.score.us}–${x.score.opp} vs ${esc(x.opp)}${x.partial?" (first half)":""}</b><small>${esc(x.tier)}. ${esc(x.story||"")}${x.cov?` Charted ${x.cov.n} of ${x.cov.total} possessions.`:""}</small></div></div>`).join("")}`
-        : emptyState(glyphOff("11"), "Your season starts here", "Save a first half at halftime or lock the game from the Final, and it lands in your book.")}
-    </div>
-    <h3>Key Tracker</h3>
-    <div class="card">${kt.length ? kt.map(x=>`<div class="ktr"><b>${esc(x.k.short)}</b><span class="pillw">Won it ${x.rec.wW}–${x.rec.wL}</span><span class="pilll">Lost it ${x.rec.lW}–${x.rec.lL}</span></div>`).join("")
-        + `<p class="hint" style="margin-top:8px">${esc(G().us)}'s record when winning or losing each key. Small samples: don't generalize from one game.</p>`
-      : emptyState(glyphDef("4 DB"), "No key records yet", "Every locked game grades every key, so you learn which ones really decide your games.")}</div>
-    <h3>Tendencies</h3>
-    ${live ? `<p class="hint" style="margin-top:-2px">Includes this game, not locked yet.</p>` : ""}
-    <div class="card"><div class="eyebrow">${esc(G().us)} offense</div>${tend("off", OFF, "run")}</div>
-    <div class="card"><div class="eyebrow">Your defense</div>${tend("def", DEF, "they ran")}</div>
     <div class="foot"><span>Your book lives on this device.</span><button class="link" onclick="copyBackup()">Back up my book</button><button class="link" onclick="restoreSheet()">Restore</button></div>
+    ${SPONSOR ? `<div style="text-align:center;margin:4px 0 6px">${sponsorChip()}</div>` : ""}
     ${helpFooter()}`;
 }
 
@@ -2073,6 +2121,7 @@ function welcome(){
     <select class="f" id="wOpp"><option value="">Choose the opponent…</option>${opts(g.opp)}</select>
     <button class="btn pri block" style="margin-top:12px" onclick="finishWelcome()">Let's go</button>
     <p class="hint" style="margin-top:10px">Everything you chart stays on this phone. Nothing is sent anywhere. ${XO_VERSION}.</p>
+    ${SPONSOR ? `<div style="text-align:center;margin-top:8px">${sponsorChip()}</div>` : ""}
   </div>`);
 }
 function finishWelcome(){
@@ -2087,7 +2136,7 @@ function sendFeedback(){
   const mins = ts.length>1 ? Math.round((Math.max(...ts)-Math.min(...ts))/60000) : null;
   const text = `xO Football feedback (${XO_VERSION})
 Game: ${g.us||"?"} vs ${g.opp||"?"}
-Charted: ${all.length} snaps (${off.length} offense, ${def.length} defense), ${cov.n} of ${cov.total} possessions
+Charted: ${all.length} snaps (${off.length} offense, ${def.length} defense). ${coverageLine()}
 Results tagged on ${all.length ? Math.round(tagged/all.length*100) : 0}% of snaps
 Keys: ${g.picked.map(id=>KEY[id].short).join(", ") || "none"}${mins!=null ? `\nTime charting: about ${mins} minutes` : ""}
 
