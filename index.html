@@ -328,6 +328,16 @@ table.box input{width:74px;text-align:right;border:1px solid var(--line);backgro
 .kcard.won,.kcard.on{border-left-color:var(--good)} .kcard.lost,.kcard.off{border-left-color:var(--bad)} .kcard.close{border-left-color:var(--warn)}
 .kcard .kc-t{font-weight:700;margin-top:6px;line-height:1.25}
 .kcard .kc-v{font-size:13.5px;color:var(--muted);margin-top:2px}
+details.names{margin-top:12px;border-top:1px solid var(--line);padding-top:4px}
+details.names summary{cursor:pointer;font-size:14px;font-weight:700;color:var(--muted);min-height:40px;display:flex;align-items:center;list-style:none}
+details.names summary::-webkit-details-marker{display:none}
+details.names summary::after{content:"+";margin-left:auto;font-size:20px}
+details.names[open] summary::after{content:"−"}
+.teamsep{height:1px;background:var(--line);margin:14px 0 12px}
+.opprow{display:flex;align-items:flex-end;gap:12px}
+.opprow .grow{flex:1;min-width:0}
+.opprow .cpick{flex-direction:column-reverse;gap:4px}
+.lab-note{font-weight:500;opacity:.75;text-transform:none;letter-spacing:0}
 details.boxd summary{display:flex;justify-content:space-between;align-items:center;cursor:pointer;list-style:none;min-height:28px}
 details.boxd summary::-webkit-details-marker{display:none}
 details.boxd summary::after{content:"+";font-size:20px;font-weight:700;color:var(--muted);margin-left:8px}
@@ -1637,7 +1647,7 @@ function espnBlock(ph){
 
 
 /* ---------- Welcome, how it works, feedback ---------- */
-const XO_VERSION = "v13.2, Sept 25";
+const XO_VERSION = "v13.3, Sept 26";
 function helpFooter(){
   return `<div class="foot"><button class="link" onclick="welcome()">How it works</button><button class="link" onclick="sendFeedback()">Send feedback</button><span>${XO_VERSION}</span></div>`;
 }
@@ -1797,8 +1807,8 @@ function renderScout(){
   const g = G();
   if(g.opp && !g.keysTouched && (!g.picked.length || g.keysSuggested)){ const s = suggestKeys(); if(s.join()!==g.picked.join()){ g.picked = s; g.keysSuggested = true; save(); } }
   const teamOpts = TEAMS.map((t,i)=>`<option value="${i}">${esc(t[0])}</option>`).join("");
-  const picks = `<div class="row" style="gap:12px;flex-wrap:wrap">${[0,1,2].map(i=>`<label class="cpick"><input type="color" value="${esc(g.usColors[i])}" aria-label="${["Primary","Secondary","Third"][i]} color" onchange="setUsColor(${i},this.value)"><span>${["Primary","Secondary","Third"][i]}</span></label>`).join("")}
-    <label class="cpick"><input type="color" value="${esc(g.oppColor)}" aria-label="Opponent color" onchange="setColor('oppColor',this.value)"><span>${esc(oppA())}</span></label></div>`;
+  const picks = `<div class="row" style="gap:12px;flex-wrap:wrap">${[0,1,2].map(i=>`<label class="cpick"><input type="color" value="${esc(g.usColors[i])}" aria-label="${["Primary","Secondary","Third"][i]} color" onchange="setUsColor(${i},this.value)"><span>${["Primary","Secondary","Third"][i]}</span></label>`).join("")}</div>`;
+  const oppPick = `<label class="cpick"><input type="color" value="${esc(g.oppColor)}" aria-label="Opponent color" onchange="setColor('oppColor',this.value)"><span>${esc(oppA())}</span></label>`;
   const byRate = ids => ids.slice().sort((a,b)=>{ const ra=keyRecord(a), rb=keyRecord(b); return (rb.n>=2?rb.rate:-1)-(ra.n>=2?ra.rate:-1); });
   const slots = [0,1,2].map(i=>{ const id = g.picked[i];
     if(!id) return `<div class="slot empty"><i class="sn">${i+1}</i><span>Open a category below and pick a key</span></div>`;
@@ -1815,11 +1825,23 @@ function renderScout(){
     ${pageHead("Scouting Report", g.opp ? `${esc(usN())} vs ${esc(oppN())}. Listed ${g.role==="Pick'em"?"pick'em":g.role.toLowerCase()}, ${esc(g.tier)} opponent.` : "Pick this week's opponent to start.")}
     ${classWall()}
     <div class="card">
+      <label class="lab" for="qUs" style="margin-top:0">Your team</label>
+      <select class="f" id="qUs" onchange="pickTeam('us',this.value)"><option value="">${esc(g.us)}</option>${teamOpts}</select>
+      <span class="lab">Team colors <small class="lab-note">run the app</small></span>${picks}
+      <div class="teamsep"></div>
+      <div class="opprow"><div class="grow"><label class="lab" for="qOpp" style="margin-top:0">This week's opponent</label><select class="f" id="qOpp" onchange="pickTeam('opp',this.value)"><option value="">${g.opp?esc(g.opp):"Choose…"}</option>${teamOpts}</select></div>${oppPick}</div>
       <div class="grid2">
-        <div style="grid-column:1/3"><label class="lab" for="qOpp" style="margin-top:0">This week's opponent</label><select class="f" id="qOpp" onchange="pickTeam('opp',this.value)"><option value="">${g.opp?esc(g.opp):"Choose…"}</option>${teamOpts}</select></div>
         <div><label class="lab" for="fRole">${esc(usN())} is listed as</label><select class="f" id="fRole" onchange="setSel('role',this.value)">${ROLES.map(r=>`<option ${g.role===r?"selected":""}>${r}</option>`).join("")}</select></div>
         <div><label class="lab" for="fTier">Opponent tier</label><select class="f" id="fTier" onchange="setSel('tier',this.value)">${TIERS.map(r=>`<option ${g.tier===r?"selected":""}>${r}</option>`).join("")}</select></div>
       </div>
+      <details class="names" ${TEAMS_OPEN?"open":""} ontoggle="TEAMS_OPEN=this.open"><summary>Edit names and short names</summary>
+        <div class="grid2" style="margin-top:4px">
+          <div><label class="lab" for="fUs">Your team's name</label><input class="f" id="fUs" value="${esc(g.us)}" onchange="setField('us',this.value);renderScout()"></div>
+          <div><label class="lab" for="fUsA">Short name</label><input class="f" id="fUsA" value="${esc(g.usAb)}" onchange="setAb('usAb',this.value);renderScout()"></div>
+          <div><label class="lab" for="fOpp">Opponent's name</label><input class="f" id="fOpp" value="${esc(g.opp)}" placeholder="Texas" onchange="setField('opp',this.value);renderScout()"></div>
+          <div><label class="lab" for="fOppA">Short name</label><input class="f" id="fOppA" value="${esc(g.oppAb)}" placeholder="TEX" onchange="setAb('oppAb',this.value);renderScout()"></div>
+        </div>
+      </details>
     </div>
     <h3>Keys to the Game</h3>
     <p class="hint" style="margin-top:-2px">${suggested ? esc(suggestWhy()) : "Your three keys. Halftime and the Final grade these."}</p>
@@ -1831,16 +1853,6 @@ function renderScout(){
     <h3>Tale of the Tape</h3>
     <div class="card">${tapeHTML()}</div>
     ${tendHTML()}
-    <details class="card boxd" ${TEAMS_OPEN?"open":""} ontoggle="TEAMS_OPEN=this.open"><summary><b>Teams and colors</b><span class="bstat">${esc(usA())} vs ${esc(oppA())}</span></summary>
-      <div class="grid2" style="margin-top:8px">
-        <div style="grid-column:1/3"><label class="lab" for="qUs">Your team</label><select class="f" id="qUs" onchange="pickTeam('us',this.value)"><option value="">${esc(g.us)}</option>${teamOpts}</select></div>
-        <div><label class="lab" for="fUs">Your team's name</label><input class="f" id="fUs" value="${esc(g.us)}" onchange="setField('us',this.value);renderScout()"></div>
-        <div><label class="lab" for="fUsA">Short name</label><input class="f" id="fUsA" value="${esc(g.usAb)}" onchange="setAb('usAb',this.value);renderScout()"></div>
-        <div><label class="lab" for="fOpp">Opponent's name</label><input class="f" id="fOpp" value="${esc(g.opp)}" placeholder="Texas" onchange="setField('opp',this.value);renderScout()"></div>
-        <div><label class="lab" for="fOppA">Short name</label><input class="f" id="fOppA" value="${esc(g.oppAb)}" placeholder="TEX" onchange="setAb('oppAb',this.value);renderScout()"></div>
-        <div style="grid-column:1/3"><span class="lab">${esc(usN())} colors run the app. The ${esc(oppA())} color marks their side.</span>${picks}</div>
-      </div>
-    </details>
     <button class="btn block" style="margin-top:10px" onclick="newGame()">Start a new game</button>
     ${helpFooter()}`;
 }
